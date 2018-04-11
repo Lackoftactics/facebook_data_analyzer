@@ -53,7 +53,7 @@ Dir.chdir("#{catalog}/messages") do
   messages_files = Dir.glob("*.html")
 
   messages_files.each do |file|
-    content = File.open(file).read
+    content = File.open(file)
 
     doc = Nokogiri::HTML(content)
     friend_name = doc.title.split("Conversation with ")[1]
