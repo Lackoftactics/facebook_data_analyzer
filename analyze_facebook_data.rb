@@ -268,7 +268,12 @@ Dir.chdir("#{catalog}/html/") do
   friends_list = doc.css('div.contents > ul')[0].css('li')
 
   friends_list.each do |friend_element|
-    name, date_added = friend_element.text.match(%r{(.*)\s\((.*)\)}).captures
+    friend_with_email = friend_element.text.match(%r{(.*)\s\((.*)\)\s\((.*)\)})
+    if friend_with_email
+      name, date_added = friend_with_email.captures
+    else
+      name, date_added = friend_element.text.match(%r{(.*)\s\((.*)\)}).captures
+    end
     date = if date_added == 'Today'
       Date.today
     elsif date_added == 'Yesterday'
