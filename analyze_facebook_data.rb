@@ -278,7 +278,7 @@ Dir.chdir("#{catalog}/html/") do
              Date.today.prev_day
            else
              Date.parse(date_added)
-    end
+           end
 
     friends_dates << date
   end
