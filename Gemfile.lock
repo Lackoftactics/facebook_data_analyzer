@@ -1,10 +1,10 @@
 GEM
+  remote: https://rubygems.org/
   specs:
     axlsx (2.0.1)
       htmlentities (~> 4.3.1)
       nokogiri (>= 1.4.1)
       rubyzip (~> 1.0.0)
-    gender_detector (2.0.0)
     htmlentities (4.3.4)
     mini_portile2 (2.3.0)
     nokogiri (1.8.2)
@@ -16,7 +16,6 @@ PLATFORMS
 
 DEPENDENCIES
   axlsx (~> 2.0.1)
-  gender_detector (~> 2.0.0)
   nokogiri (~> 1.8.2)
 
 BUNDLED WITH
