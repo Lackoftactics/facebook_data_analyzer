@@ -1,5 +1,12 @@
 # facebook_data_analyzer
 
+### TODO (partial refactor is finished)
+- Fix speed (Parallel?)
+    - Process each Analyzeable at the same time
+    - Process each file at the same time (with Queue)
+- Double check numbers (word counts are off)
+- Check OOD is okay (it feels, ehhh right now.)
+
 Facebook data analyzer as seen on [I analyzed my facebook data and it's story of shyness, loneliness, and change](https://medium.com/@przemek_/i-analyzed-my-facebook-data-and-its-story-of-shyness-loneliness-and-change-7f4e0ec3a952)
 
 Analyze facebook copy of your data. Download zip file from facebook and get info about friends ranking by message, vocabulary,  contacts, friends added statistics and more.
