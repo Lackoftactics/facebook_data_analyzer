@@ -4,7 +4,7 @@ class Message
     date_sent = Time.parse(sender_info.css('span.meta').text)
     raw_content = content.text.downcase
     # Removes everything that's not alphanumeric (except for spaces)
-    content = raw_content.gsub(/[^\p{Alnum}\p{Space}-]/u, '')
+    content = raw_content.gsub(/[^\p{Alpha}\p{Space}-]/u, '')
 
     {sender: sender, date_sent: date_sent, content: content}
   end
@@ -16,7 +16,7 @@ class Message
     @conversation = conversation.to_sym
     @date_sent = date_sent
     @content = content
-    @words = paragraph.split(' ')
+    @words = content.split(' ')
     @word_count = @words.length
     @character_count = content.length
     @xd_count = content.scan('xd').length
@@ -37,7 +37,7 @@ class Message
   end
 
   def count_by_word
-    @words.map(&to_sym)
+    @words
   end
 
   def count_by_date

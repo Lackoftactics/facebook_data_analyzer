@@ -5,10 +5,10 @@ class Contact
     {name: String(contact_info[0]), details: contact_info[1..3].join(' ')}
   end
 
-  attr_reader :name, :contact_details
+  attr_reader :name, :details
 
   def initialize(name:, details:)
     @name = name
-    @details = contact_details
+    @details = details
   end
 end
