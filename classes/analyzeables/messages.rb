@@ -23,8 +23,14 @@ class Messages
     @directory = "#{catalog}/messages"
     @file_pattern = '*.html'
     @messages = []
-    @grouped_by = Hash.new( Hash.new( Hash.new([]) ) )
-    @counted_by = Hash.new( Hash.new(0) )
+
+    # Grouped by is weird and needs a hash for each GROUP_BY, hash for each unique group, and hash for attributes
+    @grouped_by = Hash.new do |by_group, key|
+      by_group[key] = Hash.new do |group_name, attribute|
+        group_name[attribute] = Hash.new(nil)
+      end
+    end
+    @counted_by = Hash.new { |hash, key| hash[key] = Hash.new(0) }
   end
 
   def me
@@ -41,20 +47,24 @@ class Messages
         doc = Nokogiri::HTML(content)
         conversation_name = doc.title.split('Conversation with ')[1]
         puts "Analyzing conversation with: #{conversation_name}"
-        conversation = doc.css('.thread').children
-        conversation.each_slice(2) do |conversation_node|
-          # Expects each slice to consist of the div with sender info and the p with content
-          next if conversation_node.count != 2
 
+        conversation = doc.css('.thread').children
+        conversation_senders = conversation.css('div.message')
+        conversation_contents = conversation.css('p')
+        html_messages = conversation_senders.zip(conversation_contents)
+
+        html_messages.each do |conversation_node|
+          # Expects each slice to consist of the div with sender info and the p with content
+          next if conversation_node.count != 2 || conversation_node.any? { |node| node.text == "" }
           message_details = Message.parse(sender_info: conversation_node[0], content: conversation_node[1])
           message = Message.new(sender: message_details[:sender],
-                                conversation: conversation,
+                                conversation: conversation_name,
                                 date_sent: message_details[:date_sent],
                                 content: message_details[:content]
                                 )
           @messages << message
-          group!(message: message)
-          count!(message: message)
+          group!(analyzeable: message)
+          count!(analyzeable: message)
         end
       end
     end
@@ -69,8 +79,11 @@ class Messages
 
   def conversation_counts_for_sender(conversation:, sender:)
     counts = Hash.new(0)
+    sender_messages = @grouped_by[:conversation][conversation][sender]
 
-    @grouped_by[:conversation][conversation][sender][:messages].each do |message|
+    return counts if sender_messages.nil?
+
+    sender_messages.each do |message|
       message.content_counts.each do |count_by, count|
         counts[count_by] += count
       end
@@ -81,8 +94,11 @@ class Messages
 
   def word_counts_for_sender(sender:)
     words = Hash.new(0)
+    sender_messages = @grouped_by[:sender][sender][:messages]
 
-    @grouped_by[:sender][sender][:messages].each do |message|
+    return words if sender_messages.nil?
+
+    sender_messages.each do |message|
       message.words.map(&:to_sym).each do |word|
         words[word] += 1
       end
@@ -93,31 +109,36 @@ class Messages
 
   private
 
-  def group!(message:)
+  def group!(analyzeable:)
     GROUP_BY.each do |attribute|
       grouping_method = "group_by_#{attribute}".to_sym
 
-      if message.respond_to?(grouping_method)
-        grouped_message = message.send(grouping_method)
+      if analyzeable.respond_to?(grouping_method)
+        grouped_analyzeable = analyzeable.send(grouping_method)
 
-        grouped_message.each do |group, group_attributes|
+        grouped_analyzeable.each do |group, group_attributes|
           group_attributes.each do |group_attribute_key, group_attribute_value|
-            @grouped_by[attribute][group][group_attribute_key] += group_attribute_value
+            current_grouping = @grouped_by[attribute][group][group_attribute_key]
+            if current_grouping.nil?
+              @grouped_by[attribute][group][group_attribute_key] = group_attribute_value
+            else
+              @grouped_by[attribute][group][group_attribute_key] += group_attribute_value
+            end
           end
         end
       end
     end
   end
 
-  def count!(message:)
+  def count!(analyzeable:)
     COUNT_BY.each do |attribute|
       counting_method = "count_by_#{attribute}".to_sym
 
-      if message.respond_to?(counting_method)
-        countables = message.send(counting_method)
+      if analyzeable.respond_to?(counting_method)
+        countables = analyzeable.send(counting_method)
 
         countables.each do |countable|
-          @counted_by[attribute][countable.to_sym] += 1
+          @counted_by[attribute][countable] += 1
         end
       end
     end
