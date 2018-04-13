@@ -1,5 +1,12 @@
 # facebook_data_analyzer
 
+### TODO (partial refactor is finished)
+- Fix speed (Parallel?)
+    - Process each Analyzeable at the same time
+    - Process each file at the same time (with Queue)
+- Double check numbers (word counts are off)
+- Check OOD is okay (it feels, ehhh right now.)
+
 Facebook data analyzer as seen on [I analyzed my facebook data and it's story of shyness, loneliness, and change](https://medium.com/@przemek_/i-analyzed-my-facebook-data-and-its-story-of-shyness-loneliness-and-change-7f4e0ec3a952)
 
 **HELP ME OUT!! I am promoting on PRODUCT HUNT. Upvote if you like the project [Product hunt upvote](https://www.producthunt.com/posts/facebook-data-analyzer)**
