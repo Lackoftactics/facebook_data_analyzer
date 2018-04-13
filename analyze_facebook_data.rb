@@ -28,6 +28,14 @@ require_relative 'lib/most_popular_words.rb'
 # creates a xlsx file
 require_relative 'lib/workbook.rb'
 
+require_relative 'classes/analyzeables/contacts'
+require_relative 'classes/analyzeables/friends'
+require_relative 'classes/analyzeables/messages'
+require_relative 'classes/contact'
+require_relative 'classes/friend'
+require_relative 'classes/message'
+
+
 # images exchanged
 # links exchanged
 # percent conversation
@@ -49,4 +57,19 @@ require_relative 'lib/workbook.rb'
 # friends gained by month
 # rank everything
 
+
+BENCHMARK_WORKBOOK = File.join(File.dirname(__FILE__), 'example/facebook-monaleigh')
+ARGV[0] ||= BENCHMARK_WORKBOOK
+
 Workbook.new(catalog: ARGV[0])
+
+catalog = ARGV[0]
+package = Axlsx::Package.new
+analyzeables = [Messages.new(catalog: catalog), Contacts.new(catalog: catalog), Friends.new(catalog: catalog)]
+
+analyzeables.each do |analyzeable|
+  analyzeable.analyze
+  analyzeable.export(package: package)
+end
+
+package.serialize('facebook_analysis.xlsx')
