@@ -83,7 +83,6 @@ Dir.chdir("#{catalog}/messages") do
     current_message_sender = ''
 
     conversation.each do |conversation_node|
-
       # is the converstation a message?
       if conversation_node.name == 'div' && conversation_node['class'] == 'message'
         # user sending this message
@@ -363,8 +362,8 @@ end
 class MakingFriendsData
   # Creates the MakingFriendsData with help of FriendsDates
   attr_accessor :by_year, :by_week_day, :by_day,
-              :by_month, :by_month_and_year, :by_weekend,
-              :by_week_and_year
+                :by_month, :by_month_and_year, :by_weekend,
+                :by_week_and_year
   attr_reader :friends_dates
 
   def initialize(friends_dates_data)
