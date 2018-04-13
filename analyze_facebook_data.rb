@@ -28,6 +28,7 @@ require_relative 'lib/most_popular_words.rb'
 # creates a xlsx file
 require_relative 'lib/workbook.rb'
 
+require_relative 'classes/analyzeables/analyzeable'
 require_relative 'classes/analyzeables/contacts'
 require_relative 'classes/analyzeables/friends'
 require_relative 'classes/analyzeables/messages'
