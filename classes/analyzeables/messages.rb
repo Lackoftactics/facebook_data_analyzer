@@ -1,4 +1,4 @@
-class Messages
+class Messages < Analyzeable
   # conversation: {#conversation: {#sender: [messages],
   #                                 message_count: count,
   #                                 word_count: count,
@@ -24,13 +24,7 @@ class Messages
     @file_pattern = '*.html'
     @messages = []
 
-    # Grouped by is weird and needs a hash for each GROUP_BY, hash for each unique group, and hash for attributes
-    @grouped_by = Hash.new do |by_group, key|
-      by_group[key] = Hash.new do |group_name, attribute|
-        group_name[attribute] = Hash.new(nil)
-      end
-    end
-    @counted_by = Hash.new { |hash, key| hash[key] = Hash.new(0) }
+    super()
   end
 
   def me
@@ -55,7 +49,7 @@ class Messages
 
         html_messages.each do |conversation_node|
           # Expects each slice to consist of the div with sender info and the p with content
-          next if conversation_node.count != 2 || conversation_node.any? { |node| node.text == "" }
+          next if conversation_node.count != 2
           message_details = Message.parse(sender_info: conversation_node[0], content: conversation_node[1])
           message = Message.new(sender: message_details[:sender],
                                 conversation: conversation_name,
@@ -63,8 +57,8 @@ class Messages
                                 content: message_details[:content]
                                 )
           @messages << message
-          group!(analyzeable: message)
-          count!(analyzeable: message)
+          group(analyzeable: message)
+          count(analyzeable: message)
         end
       end
     end
@@ -92,57 +86,18 @@ class Messages
     counts
   end
 
-  def word_counts_for_sender(sender:)
-    words = Hash.new(0)
+  def count_by_sender(sender:)
+    count_by = Hash.new { |hash, key| hash[key] = Hash.new(0) }
     sender_messages = @grouped_by[:sender][sender][:messages]
 
-    return words if sender_messages.nil?
-
     sender_messages.each do |message|
-      message.words.map(&:to_sym).each do |word|
-        words[word] += 1
-      end
+      count(analyzeable: message, aggregate_hash: count_by)
     end
 
-    words
+    count_by
   end
 
   private
-
-  def group!(analyzeable:)
-    GROUP_BY.each do |attribute|
-      grouping_method = "group_by_#{attribute}".to_sym
-
-      if analyzeable.respond_to?(grouping_method)
-        grouped_analyzeable = analyzeable.send(grouping_method)
-
-        grouped_analyzeable.each do |group, group_attributes|
-          group_attributes.each do |group_attribute_key, group_attribute_value|
-            current_grouping = @grouped_by[attribute][group][group_attribute_key]
-            if current_grouping.nil?
-              @grouped_by[attribute][group][group_attribute_key] = group_attribute_value
-            else
-              @grouped_by[attribute][group][group_attribute_key] += group_attribute_value
-            end
-          end
-        end
-      end
-    end
-  end
-
-  def count!(analyzeable:)
-    COUNT_BY.each do |attribute|
-      counting_method = "count_by_#{attribute}".to_sym
-
-      if analyzeable.respond_to?(counting_method)
-        countables = analyzeable.send(counting_method)
-
-        countables.each do |countable|
-          @counted_by[attribute][countable] += 1
-        end
-      end
-    end
-  end
 
   def friends_ranking_sheet(package:)
     package.workbook.add_worksheet(name: 'Friends ranking') do |sheet|
@@ -167,6 +122,7 @@ class Messages
   def message_statistics_sheet(package:)
     package.workbook.add_worksheet(name: 'My message statistics') do |sheet|
       my_messages_details = @grouped_by[:sender][me]
+      my_message_count_by = count_by_sender(sender: me)
       sheet.add_row ['My message statistics']
       sheet.add_row ["You sent in total #{my_messages_details[:message_count]} messages"]
       sheet.add_row ["You used #{my_messages_details[:character_count]} characters in total"]
@@ -175,51 +131,51 @@ class Messages
       sheet.add_row ['']
 
       sheet.add_row ['Messaging by month']
-      sheet.add_row ['Month', 'number of messages']
+      sheet.add_row ['Month', 'total # of messages', '# of my messages']
       @counted_by[:month].sort_by { |_month, count| count }.each do |month, count|
-        sheet.add_row [month, count]
+        sheet.add_row [month, count, my_message_count_by[:month][month]]
       end
 
       sheet.add_row ['Messaging by year']
-      sheet.add_row ['Year', 'number of messages']
+      sheet.add_row ['Year', 'total # of messages', '# of my messages']
       @counted_by[:year].sort_by { |year, _count| year }.each do |year, count|
-        sheet.add_row [year, count]
+        sheet.add_row [year, count, my_message_count_by[:year][year]]
       end
 
       sheet.add_row ['Messaging by day of week']
-      sheet.add_row ['Day of week', 'number of messages']
+      sheet.add_row ['Day of week', 'total # of messages', '# of my messages']
       @counted_by[:day_of_week].sort_by { |_day, count| count }.reverse.each do |day, count|
-        sheet.add_row [day, count]
+        sheet.add_row [day, count, my_message_count_by[:day_of_week][day]]
       end
 
       sheet.add_row ['Messaging on week days vs. weekend']
-      sheet.add_row ['Type of day', 'number of messages']
+      sheet.add_row ['Type of day', 'total # of messages', '# of my messages']
       @counted_by[:weekend].each do |type, count|
-        sheet.add_row [type, count]
+        sheet.add_row [type, count, my_message_count_by[:weekend][type]]
       end
 
       sheet.add_row ['Breakdown of messages by hour']
-      sheet.add_row ['Hour', 'number of messages']
+      sheet.add_row ['Hour', 'total # of messages', '# of my messages']
       @counted_by[:hour].sort_by { |hour, _count| hour }.each do |hour, count|
-        sheet.add_row [hour, count]
+        sheet.add_row [hour, count, my_message_count_by[:hour][hour]]
       end
 
       sheet.add_row ['Breakdown of messages by hour and year']
-      sheet.add_row ['Year and hour', 'number of messages']
+      sheet.add_row ['Year and hour', 'total # of messages', '# of my messages']
       @counted_by[:year_hour].sort_by { |year_hour, _count| y, h = year_hour.split(' - '); "#{y}0".to_i + h.to_i }.each do |year_hour, count|
-        sheet.add_row [year_hour, count]
+        sheet.add_row [year_hour, count, my_message_count_by[:year_hour][year_hour]]
       end
 
       sheet.add_row ['Most busy messaging days']
-      sheet.add_row ['Date', 'number of messages']
+      sheet.add_row ['Date', 'total # of messages', '# of my messages']
       @counted_by[:date].sort_by { |_date, count| count }.reverse.each do |date, count|
-        sheet.add_row [date, count]
+        sheet.add_row [date, count, my_message_count_by[:date][date]]
       end
     end
   end
 
   def vocabulary_statistics(package:)
-    my_words = word_counts_for_sender(sender: me)
+    my_words = count_by_sender(sender: me)[:word]
     my_word_count = @grouped_by[:sender][me][:word_count]
 
     package.workbook.add_worksheet(name: 'Vocabulary statistics') do |sheet|

@@ -5,6 +5,7 @@
 require 'nokogiri'
 require 'axlsx'
 
+require_relative 'classes/analyzeables/analyzeable'
 require_relative 'classes/analyzeables/contacts'
 require_relative 'classes/analyzeables/friends'
 require_relative 'classes/analyzeables/messages'
