@@ -10,6 +10,8 @@ require_relative 'lib/making_friends_data.rb'
 require_relative 'lib/messages_sent.rb'
 require_relative 'lib/friends_dates.rb'
 require_relative 'lib/contact_list.rb'
+require_relative 'lib/friends_ranking_sheet.rb'
+require_relative 'lib/message_statistics_sheet.rb'
 
 # images exchanged
 # links exchanged
@@ -36,78 +38,15 @@ analyze_facebook_data = AnalyzeFacebookData.new(ARGV[0]).start
 
 # CreatePackage
 package = Axlsx::Package.new
+
 package.workbook.add_worksheet(name: 'Friends ranking') do |sheet|
-  sheet.add_row ['Friends ranking']
-  sheet.add_row ['Rank', 'Friend name', 'total count', 'your messages count', 'friend messages count', 'your characters count', 'friend characters count', 'your words', 'friend words']
-  rank = 1
-  analyze_facebook_data.ranking.each do |friend_name, friend_data|
-    sheet.add_row [rank, friend_name,
-                   friend_data[:total_count], friend_data[:you_count],
-                   friend_data[:friend_count], friend_data[:you_characters],
-                   friend_data[:friend_characters], friend_data[:you_words],
-                   friend_data[:friend_words]]
-    rank += 1
-  end
+  FriendsRankingSheet.build(ranking: analyze_facebook_data.ranking, sheet: sheet)
 end
 
 messages_sent = MessagesSent.new(analyze_facebook_data.my_messages_dates).build
 
 package.workbook.add_worksheet(name: 'My message statistics') do |sheet|
-  sheet.add_row ['My message statistics']
-  sheet.add_row ["You sent in total #{analyze_facebook_data.me[:total_message_count]} messages"]
-  sheet.add_row ["You used #{analyze_facebook_data.me[:total_characters]} characters in total"]
-  sheet.add_row ["You also used #{analyze_facebook_data.me[:total_words]} words in total"]
-  sheet.add_row ["You also happened to use xD #{analyze_facebook_data.me[:total_xd]} times"]
-  sheet.add_row ['']
-
-  sheet.add_row ['Messaging by month']
-  sheet.add_row ['Month', 'number of messages']
-
-  messages_sent.by_month.sort_by { |_month, count| count }.each do |month, count|
-    sheet.add_row [month, count]
-  end
-
-  sheet.add_row ['Messaging by year']
-  sheet.add_row ['Year', 'number of messages']
-
-  messages_sent.by_year.sort_by { |year, _count| year }.each do |year, count|
-    sheet.add_row [year, count]
-  end
-
-  sheet.add_row ['Messaging by day of week']
-  sheet.add_row ['Day of week', 'number of messages']
-
-  messages_sent.by_day_of_week.sort_by { |_day, count| count }.reverse.each do |day, count|
-    sheet.add_row [day, count]
-  end
-
-  sheet.add_row ['Messaging on week days vs. weekend']
-  sheet.add_row ['Type of day', 'number of messages']
-
-  messages_sent.by_weekend.each do |type, count|
-    sheet.add_row [type, count]
-  end
-
-  sheet.add_row ['Breakdown of messages by hour']
-  sheet.add_row ['Hour', 'number of messages']
-
-  messages_sent.by_hour.sort_by { |hour, _count| hour }.each do |hour, count|
-    sheet.add_row [hour, count]
-  end
-
-  sheet.add_row ['Breakdown of messages by hour and year']
-  sheet.add_row ['Year and hour', 'number of messages']
-
-  messages_sent.by_year_hour.sort_by { |year_hour, _count| y, h = year_hour.split(' - '); "#{y}0".to_i + h.to_i }.each do |year_hour, count|
-    sheet.add_row [year_hour, count]
-  end
-
-  sheet.add_row ['Most busy messaging days']
-  sheet.add_row ['Date', 'number of messages']
-
-  messages_sent.by_date.sort_by { |_date, count| count }.reverse.each do |date, count|
-    sheet.add_row [date, count]
-  end
+  MessageStatisticsSheet.build(me: analyze_facebook_data.me, messages_sent: messages_sent, sheet: sheet)
 end
 
 def most_popular_polish_words
