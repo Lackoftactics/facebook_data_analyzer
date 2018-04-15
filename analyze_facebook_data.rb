@@ -66,7 +66,7 @@ package.workbook.add_worksheet(name: 'Vocabulary statistics') do |sheet|
                                   sheet: sheet)
 end
 
-contact_list = ContactList.new(analyze_facebook_data.catalog).run
+contact_list = ContactList.new(analyze_facebook_data.catalog).build
 
 package.workbook.add_worksheet(name: 'Contact list') do |sheet|
   ContactListSheet.build(contacts: contact_list.contacts, sheet: sheet)

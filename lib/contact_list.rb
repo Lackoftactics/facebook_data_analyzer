@@ -7,7 +7,7 @@ class ContactList
     @catalog = data_catalog
   end
 
-  def run
+  def build
     @contacts = contacts_rows.map do |contact|
       text = contact.text
       if text == 'NameContacts'
