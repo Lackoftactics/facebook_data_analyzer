@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class MessageStatisticsSheet
   def self.build(me:, messages_sent:, sheet:)
     sheet.add_row ['My message statistics']

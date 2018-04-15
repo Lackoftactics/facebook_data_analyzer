@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class MessagesSent
   # analyze message patterns when messages are sent
   attr_accessor :by_month, :by_year, :by_day_of_week,
@@ -35,4 +37,3 @@ class MessagesSent
     self
   end
 end
-

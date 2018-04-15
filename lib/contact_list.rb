@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ContactList
   # contact info data
   # how much facebook archived

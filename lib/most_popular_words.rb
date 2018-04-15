@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class MostPopularWords
   def self.most_popular_polish_words
     @popular_polish_words ||= begin

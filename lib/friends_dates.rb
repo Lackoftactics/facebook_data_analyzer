@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class FriendsDates
   # analyze making of friends
   # Returns an array of [<Date>,<Date>]
@@ -53,4 +55,3 @@ class FriendsDates
     friend_element.text.match(/(.*)\s\((.*)\)\s\((.*)\)/)
   end
 end
-

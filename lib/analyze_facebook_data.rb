@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AnalyzeFacebookData
   attr_accessor :friends, :me, :my_messages_dates, :dictionary, :catalog
 
@@ -105,6 +107,6 @@ class AnalyzeFacebookData
 
   def user_name
     Nokogiri::HTML(File.open("#{catalog}/index.htm")).title
-                                                     .split(' - Profile')[0]
+            .split(' - Profile')[0]
   end
 end

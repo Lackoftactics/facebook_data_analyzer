@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Workbook
   def initialize(catalog: catalog)
     analyze_facebook_data = AnalyzeFacebookData.new(catalog).start

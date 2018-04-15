@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ContactListSheet
   def self.build(contacts:, sheet:)
     sheet.add_row ['Contact list']

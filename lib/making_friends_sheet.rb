@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class MakingFriendsSheet
   def self.build(making_friends:, sheet:)
     sheet.add_row ['Making friends']

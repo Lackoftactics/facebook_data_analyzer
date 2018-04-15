@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 class VocabularyStatisticsSheet
-  def self.build(dictionary:, me:,most_popular_polish_words:, most_popular_english_words:, sheet:)
+  def self.build(dictionary:, me:, most_popular_polish_words:, most_popular_english_words:, sheet:)
     sheet.add_row ['Vocabulary statistics']
     sheet.add_row ["You used #{dictionary.length} unique words and #{me[:total_words]} words in total"]
 

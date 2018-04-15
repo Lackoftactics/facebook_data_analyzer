@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class FriendsRankingSheet
   def self.build(ranking:, sheet:)
     sheet.add_row ['Friends ranking']
@@ -13,4 +15,3 @@ class FriendsRankingSheet
     end
   end
 end
-

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class MakingFriendsData
   # Creates the MakingFriendsData with help of FriendsDates
   attr_accessor :by_year, :by_week_day, :by_day,
