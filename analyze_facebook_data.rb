@@ -15,6 +15,7 @@ require_relative 'lib/message_statistics_sheet.rb'
 require_relative 'lib/making_friends_sheet.rb'
 require_relative 'lib/contact_list_sheet.rb'
 require_relative 'lib/vocabulary_statistics_sheet.rb'
+require_relative 'lib/most_popular_words.rb'
 
 # images exchanged
 # links exchanged
@@ -50,24 +51,6 @@ messages_sent = MessagesSent.new(analyze_facebook_data.my_messages_dates).build
 
 package.workbook.add_worksheet(name: 'My message statistics') do |sheet|
   MessageStatisticsSheet.build(me: analyze_facebook_data.me, messages_sent: messages_sent, sheet: sheet)
-end
-
-class MostPopularWords
-  def self.most_popular_polish_words
-    @popular_polish_words ||= begin
-                                File.open('most_popular_polish_words.txt').map do |line|
-                                  line.split(' ')[0].downcase
-                                end.compact
-                              end
-  end
-
-  def self.most_popular_english_words
-    @popular_english_words ||= begin
-                                 File.open('most_popular_english_words.txt').map do |line|
-                                   line.split(' ')[0].downcase
-                                 end.compact
-                               end
-  end
 end
 
 package.workbook.add_worksheet(name: 'Vocabulary statistics') do |sheet|
