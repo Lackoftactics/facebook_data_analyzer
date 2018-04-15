@@ -5,11 +5,16 @@
 require 'nokogiri'
 require 'axlsx'
 
+# parsing the data
 require_relative 'lib/analyze_facebook_data.rb'
 require_relative 'lib/making_friends_data.rb'
+
+# sort the data for using in workbook sheets
 require_relative 'lib/messages_sent.rb'
 require_relative 'lib/friends_dates.rb'
 require_relative 'lib/contact_list.rb'
+
+# creating workbook sheets
 require_relative 'lib/friends_ranking_sheet.rb'
 require_relative 'lib/message_statistics_sheet.rb'
 require_relative 'lib/making_friends_sheet.rb'
