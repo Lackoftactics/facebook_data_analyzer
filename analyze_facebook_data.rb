@@ -149,31 +149,51 @@ package.workbook.add_worksheet(name: 'Vocabulary statistics') do |sheet|
   end
 end
 
-# contact info data
-# how much facebook archived
-Dir.chdir("#{analyze_facebook_data.catalog}/html/") do
-  content = File.open('contact_info.htm').read
-  doc = Nokogiri::HTML(content)
+class ContactList
+  # contact info data
+  # how much facebook archived
+  attr_reader :contacts, :catalog
 
-  contacts_rows = doc.css('div.contents tr')
-
-  contacts = contacts_rows.map do |contact|
-    text = contact.text
-    if text == 'NameContacts'
-    else
-      contact_info = text.split('contact: ')
-      [String(contact_info[0]), contact_info[1..3].join(' ')]
-    end
-  end.compact.uniq
-
-  package.workbook.add_worksheet(name: 'Contact list') do |sheet|
-    sheet.add_row ['Contact list']
-    sheet.add_row ["Facebook imported #{contacts.length} of your contacts"]
-    sheet.add_row ['Name', 'Phone number']
-    contacts.sort_by { |contact_name, _info| contact_name }.each do |contact_name, contact_num|
-      sheet.add_row [contact_name, contact_num]
-    end
+  def initialize(data_catalog)
+    @catalog = data_catalog
   end
+
+  def run
+    @contacts = contacts_rows.map do |contact|
+      text = contact.text
+      if text == 'NameContacts'
+      else
+        contact_info = text.split('contact: ')
+        [String(contact_info[0]), contact_info[1..3].join(' ')]
+      end
+    end.compact.uniq
+    self
+  end
+
+  def doc
+    Nokogiri::HTML(content)
+  end
+
+  def content
+    File.open("#{catalog}/html/contact_info.htm").read
+  end
+
+  def contacts_rows
+    doc.css('div.contents tr')
+  end
+end
+
+contact_list = ContactList.new(analyze_facebook_data.catalog).run
+
+package.workbook.add_worksheet(name: 'Contact list') do |sheet|
+  sheet.add_row ['Contact list']
+  sheet.add_row ["Facebook imported #{contact_list.contacts.length} of your contacts"]
+  sheet.add_row ['Name', 'Phone number']
+
+  contact_list.contacts.sort_by { |contact_name, _info| contact_name }
+                       .each do |contact_name, contact_num|
+                         sheet.add_row [contact_name, contact_num]
+                       end
 end
 
 analyze_friends_dates = FriendsDates.analyze(analyze_facebook_data.catalog).friends_dates
