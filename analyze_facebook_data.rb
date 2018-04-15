@@ -14,6 +14,7 @@ require_relative 'lib/friends_ranking_sheet.rb'
 require_relative 'lib/message_statistics_sheet.rb'
 require_relative 'lib/making_friends_sheet.rb'
 require_relative 'lib/contact_list_sheet.rb'
+require_relative 'lib/vocabulary_statistics_sheet.rb'
 
 # images exchanged
 # links exchanged
@@ -51,44 +52,30 @@ package.workbook.add_worksheet(name: 'My message statistics') do |sheet|
   MessageStatisticsSheet.build(me: analyze_facebook_data.me, messages_sent: messages_sent, sheet: sheet)
 end
 
-def most_popular_polish_words
-  @popular_polish_words ||= begin
-    File.open('most_popular_polish_words.txt').map do |line|
-      line.split(' ')[0].downcase
-    end.compact
+class MostPopularWords
+  def self.most_popular_polish_words
+    @popular_polish_words ||= begin
+                                File.open('most_popular_polish_words.txt').map do |line|
+                                  line.split(' ')[0].downcase
+                                end.compact
+                              end
+  end
+
+  def self.most_popular_english_words
+    @popular_english_words ||= begin
+                                 File.open('most_popular_english_words.txt').map do |line|
+                                   line.split(' ')[0].downcase
+                                 end.compact
+                               end
   end
 end
-
-def most_popular_english_words
-  @popular_english_words ||= begin
-    File.open('most_popular_english_words.txt').map do |line|
-      line.split(' ')[0].downcase
-    end.compact
-  end
-end
-
 
 package.workbook.add_worksheet(name: 'Vocabulary statistics') do |sheet|
-  sheet.add_row ['Vocabulary statistics']
-  sheet.add_row ["You used #{analyze_facebook_data.dictionary.length} unique words and #{analyze_facebook_data.me[:total_words]} words in total"]
-
-  most_popular_polish_words.each do |word|
-    analyze_facebook_data.dictionary.delete(word)
-  end
-
-  most_popular_english_words.each do |word|
-    analyze_facebook_data.dictionary.delete(word)
-  end
-
-  sheet.add_row ['This are cleaned results without most common english words']
-  sheet.add_row %w[Rank Word Occurences]
-
-  words_ranked = analyze_facebook_data.dictionary.sort_by { |_word, count| count }.reverse[0..999]
-  rank = 1
-  words_ranked.each do |word, count|
-    sheet.add_row [rank, word, count]
-    rank += 1
-  end
+  VocabularyStatisticsSheet.build(dictionary: analyze_facebook_data.dictionary,
+                                  me: analyze_facebook_data.me,
+                                  most_popular_english_words: MostPopularWords.most_popular_english_words,
+                                  most_popular_polish_words: MostPopularWords.most_popular_polish_words,
+                                  sheet: sheet)
 end
 
 contact_list = ContactList.new(analyze_facebook_data.catalog).run
