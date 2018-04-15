@@ -2,5 +2,5 @@
 
 source 'https://rubygems.org'
 
-gem 'axlsx', '~> 2.0.1'
+gem 'axlsx', '3.0.0.pre'
 gem 'nokogiri', '~> 1.8.2'
