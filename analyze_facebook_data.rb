@@ -49,13 +49,3 @@ require_relative 'lib/workbook.rb'
 # rank everything
 
 Workbook.new(catalog: ARGV[0])
-
-
-
-
-
-
-
-
-
-
