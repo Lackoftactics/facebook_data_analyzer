@@ -13,6 +13,7 @@ require_relative 'lib/contact_list.rb'
 require_relative 'lib/friends_ranking_sheet.rb'
 require_relative 'lib/message_statistics_sheet.rb'
 require_relative 'lib/making_friends_sheet.rb'
+require_relative 'lib/contact_list_sheet.rb'
 
 # images exchanged
 # links exchanged
@@ -93,14 +94,7 @@ end
 contact_list = ContactList.new(analyze_facebook_data.catalog).run
 
 package.workbook.add_worksheet(name: 'Contact list') do |sheet|
-  sheet.add_row ['Contact list']
-  sheet.add_row ["Facebook imported #{contact_list.contacts.length} of your contacts"]
-  sheet.add_row ['Name', 'Phone number']
-
-  contact_list.contacts.sort_by { |contact_name, _info| contact_name }
-                       .each do |contact_name, contact_num|
-                         sheet.add_row [contact_name, contact_num]
-                       end
+  ContactListSheet.build(contacts: contact_list.contacts, sheet: sheet)
 end
 
 analyze_friends_dates = FriendsDates.analyze(analyze_facebook_data.catalog).friends_dates
