@@ -26,118 +26,118 @@ require 'axlsx'
 # friends gained by month
 # rank everything
 
-friends = {}
-me = Hash.new(0)
-my_messages_dates = []
-dictionary = Hash.new(0)
+class AnalyzeFacebookData
+  attr_accessor :friends, :me, :my_messages_dates, :dictionary, :catalog
 
-def most_popular_polish_words
-  @popular_polish_words ||= begin
-    File.open('most_popular_polish_words.txt').map do |line|
-      line.split(' ')[0].downcase
-    end.compact
+  def initialize(data_catalog)
+    @friends           = {}
+    @me                = Hash.new(0)
+    @my_messages_dates = []
+    @dictionary        = Hash.new(0)
+    @catalog           = data_catalog
   end
-end
-
-def most_popular_english_words
-  @popular_english_words ||= begin
-    File.open('most_popular_english_words.txt').map do |line|
-      line.split(' ')[0].downcase
-    end.compact
-  end
-end
-
-catalog = ARGV[0]
-user_name = Nokogiri::HTML(File.open("#{catalog}/index.htm")).title.split(' - Profile')[0]
-
-Dir.chdir("#{catalog}/messages") do
-  messages_files = Dir.glob('*.html')
 
   # AnalyzeMessages
-  messages_files.each do |file|
-    # open
-    content = File.open(file)
-    doc = Nokogiri::HTML(content)
+  def start
+    messages_files.each do |file|
+      # open current file
+      content = File.open(file)
+      doc = Nokogiri::HTML(content)
 
-    # get friend name
-    friend_name = doc.title.split('Conversation with ')[1]
+      # get friend name
+      friend_name = doc.title.split('Conversation with ')[1]
 
-    # return value
-    friends[friend_name] ||= {
-      you_count: 0,
-      you_characters: 0,
-      you_words: 0,
-      friend_count: 0,
-      friend_characters: 0,
-      friend_words: 0,
-      total_count: 0
-    }
+      # return value
+      friends[friend_name] ||= {
+        you_count: 0,
+        you_characters: 0,
+        you_words: 0,
+        friend_count: 0,
+        friend_characters: 0,
+        friend_words: 0,
+        total_count: 0
+      }
 
-    # Debug
-    puts "Analyzing conversation with: #{friend_name}"
+      # Debug
+      puts "Analyzing conversation with: #{friend_name}"
 
-    # whole conversation
-    conversation = doc.css('.thread').children
+      # whole conversation
+      conversation = doc.css('.thread').children
 
-    # instance
-    current_message_sender = ''
+      # instance
+      current_message_sender = ''
 
-    conversation.each do |conversation_node|
-      # is the converstation a message?
-      if conversation_node.name == 'div' && conversation_node['class'] == 'message'
-        # user sending this message
-        current_message_sender  = conversation_node.css('span.user').text
-        # meta conversation data
-        date_info               = conversation_node.css('span.meta').text
+      conversation.each do |conversation_node|
+        # is the converstation a message?
+        if conversation_node.name == 'div' && conversation_node['class'] == 'message'
+          # user sending this message
+          current_message_sender  = conversation_node.css('span.user').text
+          # meta conversation data
+          date_info               = conversation_node.css('span.meta').text
 
-        # who sent message, was this me or you
+          # who sent message, was this me or you
+          if current_message_sender == user_name
+            # me
+            me[:total_message_count]            += 1
+            friends[friend_name][:you_count]    += 1
+            friends[friend_name][:total_count]  += 1
+            my_messages_dates << Time.parse(date_info)
+          else
+            # a friend of mine
+            friends[friend_name][:total_count] += 1
+            friends[friend_name][:friend_count] += 1
+          end
+        end
+
+        # skip this conversation node
+        next unless conversation_node.name == 'p'
+
+        # numbers about words in the conversation
+        paragraph        = conversation_node.text.downcase
+        paragraph        = paragraph.delete(',').delete('.')
+        paragraph_length = paragraph.length
+        paragraph_words  = paragraph.split(' ')
+
+        # who sent this message, me or you?
         if current_message_sender == user_name
           # me
-          me[:total_message_count]            += 1
-          friends[friend_name][:you_count]    += 1
-          friends[friend_name][:total_count]  += 1
-          my_messages_dates << Time.parse(date_info)
+          me[:total_characters]   += paragraph_length
+          me[:total_words]        += paragraph_words.length
+          me[:total_xd]           += paragraph.scan('xd').length
+
+          # build dictionary
+          paragraph_words.each do |word|
+            dictionary[word] += 1
+          end
+
+          # conversation with friend
+          friends[friend_name][:you_characters] += paragraph_length
+          friends[friend_name][:you_words]      += paragraph_words.length
         else
-          # a friend of mine
-          friends[friend_name][:total_count] += 1
-          friends[friend_name][:friend_count] += 1
+          # you
+          friends[friend_name][:friend_characters]  += paragraph_length
+          friends[friend_name][:friend_words]       += paragraph_words.length
         end
-      end
-
-      # skip this conversation node
-      next unless conversation_node.name == 'p'
-
-      # numbers about words in the conversation
-      paragraph        = conversation_node.text.downcase
-      paragraph        = paragraph.delete(',').delete('.')
-      paragraph_length = paragraph.length
-      paragraph_words  = paragraph.split(' ')
-
-      # who sent this message, me or you?
-      if current_message_sender == user_name
-        # me
-        me[:total_characters]   += paragraph_length
-        me[:total_words]        += paragraph_words.length
-        me[:total_xd]           += paragraph.scan('xd').length
-
-        # build dictionary
-        paragraph_words.each do |word|
-          dictionary[word] += 1
-        end
-
-        # conversation with friend
-        friends[friend_name][:you_characters] += paragraph_length
-        friends[friend_name][:you_words]      += paragraph_words.length
-      else
-        # you
-        friends[friend_name][:friend_characters]  += paragraph_length
-        friends[friend_name][:friend_words]       += paragraph_words.length
       end
     end
+    self
+  end
+
+  def ranking
+    friends.sort_by { |_name, friend| friend[:total_count] }.reverse
+  end
+
+  def messages_files
+    Dir.glob("#{catalog}/messages/*.html")[0..5]
+  end
+
+  def user_name
+    Nokogiri::HTML(File.open("#{catalog}/index.htm")).title
+                                                     .split(' - Profile')[0]
   end
 end
 
-ranking = friends.sort_by { |_name, friend| friend[:total_count] }.reverse
+analyze_facebook_data = AnalyzeFacebookData.new(ARGV[0]).start
 
 # CreatePackage
 package = Axlsx::Package.new
@@ -145,7 +145,7 @@ package.workbook.add_worksheet(name: 'Friends ranking') do |sheet|
   sheet.add_row ['Friends ranking']
   sheet.add_row ['Rank', 'Friend name', 'total count', 'your messages count', 'friend messages count', 'your characters count', 'friend characters count', 'your words', 'friend words']
   rank = 1
-  ranking.each do |friend_name, friend_data|
+  analyze_facebook_data.ranking.each do |friend_name, friend_data|
     sheet.add_row [rank, friend_name,
                    friend_data[:total_count], friend_data[:you_count],
                    friend_data[:friend_count], friend_data[:you_characters],
@@ -193,14 +193,14 @@ class MessagesSent
   end
 end
 
-messages_sent = MessagesSent.new(my_messages_dates).build
+messages_sent = MessagesSent.new(analyze_facebook_data.my_messages_dates).build
 
 package.workbook.add_worksheet(name: 'My message statistics') do |sheet|
   sheet.add_row ['My message statistics']
-  sheet.add_row ["You sent in total #{me[:total_message_count]} messages"]
-  sheet.add_row ["You used #{me[:total_characters]} characters in total"]
-  sheet.add_row ["You also used #{me[:total_words]} words in total"]
-  sheet.add_row ["You also happened to use xD #{me[:total_xd]} times"]
+  sheet.add_row ["You sent in total #{analyze_facebook_data.me[:total_message_count]} messages"]
+  sheet.add_row ["You used #{analyze_facebook_data.me[:total_characters]} characters in total"]
+  sheet.add_row ["You also used #{analyze_facebook_data.me[:total_words]} words in total"]
+  sheet.add_row ["You also happened to use xD #{analyze_facebook_data.me[:total_xd]} times"]
   sheet.add_row ['']
 
   sheet.add_row ['Messaging by month']
@@ -253,22 +253,39 @@ package.workbook.add_worksheet(name: 'My message statistics') do |sheet|
   end
 end
 
+def most_popular_polish_words
+  @popular_polish_words ||= begin
+    File.open('most_popular_polish_words.txt').map do |line|
+      line.split(' ')[0].downcase
+    end.compact
+  end
+end
+
+def most_popular_english_words
+  @popular_english_words ||= begin
+    File.open('most_popular_english_words.txt').map do |line|
+      line.split(' ')[0].downcase
+    end.compact
+  end
+end
+
+
 package.workbook.add_worksheet(name: 'Vocabulary statistics') do |sheet|
   sheet.add_row ['Vocabulary statistics']
-  sheet.add_row ["You used #{dictionary.length} unique words and #{me[:total_words]} words in total"]
+  sheet.add_row ["You used #{analyze_facebook_data.dictionary.length} unique words and #{analyze_facebook_data.me[:total_words]} words in total"]
 
   most_popular_polish_words.each do |word|
-    dictionary.delete(word)
+    analyze_facebook_data.dictionary.delete(word)
   end
 
   most_popular_english_words.each do |word|
-    dictionary.delete(word)
+    analyze_facebook_data.dictionary.delete(word)
   end
 
   sheet.add_row ['This are cleaned results without most common english words']
   sheet.add_row %w[Rank Word Occurences]
 
-  words_ranked = dictionary.sort_by { |_word, count| count }.reverse[0..999]
+  words_ranked = analyze_facebook_data.dictionary.sort_by { |_word, count| count }.reverse[0..999]
   rank = 1
   words_ranked.each do |word, count|
     sheet.add_row [rank, word, count]
@@ -278,7 +295,7 @@ end
 
 # contact info data
 # how much facebook archived
-Dir.chdir("#{catalog}/html/") do
+Dir.chdir("#{analyze_facebook_data.catalog}/html/") do
   content = File.open('contact_info.htm').read
   doc = Nokogiri::HTML(content)
 
@@ -398,7 +415,7 @@ class MakingFriendsData
   end
 end
 
-analyze_friends_dates = FriendsDates.analyze(catalog).friends_dates
+analyze_friends_dates = FriendsDates.analyze(analyze_facebook_data.catalog).friends_dates
 making_friends = MakingFriendsData.new(analyze_friends_dates).build
 
 package.workbook.add_worksheet(name: 'Making friends') do |sheet|
