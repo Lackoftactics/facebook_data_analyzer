@@ -83,7 +83,7 @@ Dir.chdir("#{catalog}/messages") do
           me[:total_message_count] += 1
           friends[friend_name][:you_count] += 1
           friends[friend_name][:total_count] += 1
-          my_messages_dates << Time.parse(date_info)
+          my_messages_dates << DateTime.parse(date_info)
         else
           friends[friend_name][:total_count] += 1
           friends[friend_name][:friend_count] += 1
@@ -277,7 +277,7 @@ Dir.chdir("#{catalog}/html/") do
            elsif date_added == 'Yesterday'
              Date.today.prev_day
            else
-             Date.parse(date_added)
+             DateTime.parse(date_added)
            end
 
     friends_dates << date
@@ -299,7 +299,7 @@ friends_dates.each do |date|
   by_day[date.strftime('%F')] += 1
   by_month[date.strftime('%B')] += 1
   by_month_and_year[date.strftime('%B - %Y')] += 1
-  by_week_and_year["week #{date.cweek} of #{date.year}"] += 1
+  by_week_and_year["week #{date.strftime('%V')} of #{date.year}"] += 1
 
   if date.friday? || date.saturday? || date.sunday?
     by_weekend[:weekend] += 1
