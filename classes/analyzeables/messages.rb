@@ -40,6 +40,9 @@ class Messages < Analyzeable
 
         doc = Nokogiri::HTML(content)
         conversation_name = doc.title.split('Conversation with ')[1]
+
+        next if conversation_name.nil?
+
         puts "Analyzing conversation with: #{conversation_name}"
 
         conversation = doc.css('.thread').children
@@ -51,7 +54,11 @@ class Messages < Analyzeable
           # Expects each slice to consist of the div with sender info and the p with content
           next if conversation_node.count != 2
           message_details = Message.parse(sender_info: conversation_node[0], content: conversation_node[1])
-          message = Message.new(sender: message_details[:sender],
+          sender = message_details[:sender]
+          
+          next if sender.nil?
+
+          message = Message.new(sender: sender,
                                 conversation: conversation_name,
                                 date_sent: message_details[:date_sent],
                                 content: message_details[:content]
