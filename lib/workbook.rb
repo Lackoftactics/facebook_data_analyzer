@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Workbook
-  def initialize(catalog: catalog)
+  def initialize(catalog: input_catalog)
     analyze_facebook_data = AnalyzeFacebookData.new(catalog).start
     messages_sent         = MessagesSent.new(analyze_facebook_data.my_messages_dates).build
     contact_list          = ContactList.new(analyze_facebook_data.catalog).build
