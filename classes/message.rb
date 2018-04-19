@@ -1,7 +1,7 @@
 class Message
   def self.parse(sender_info:, content:)
     sender = sender_info.css('span.user').text
-    date_sent = Time.parse(sender_info.css('span.meta').text)
+    date_sent = DateTime.parse(sender_info.css('span.meta').text)
     raw_content = content.text.downcase
     # Removes everything that's not alphanumeric (except for spaces)
     content = raw_content.gsub(/[^\p{Alpha}\p{Space}-]/u, '')
