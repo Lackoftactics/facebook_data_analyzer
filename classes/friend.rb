@@ -13,7 +13,7 @@ class Friend
            elsif date_added == 'Yesterday'
              Date.today.prev_day
            else
-             Date.parse(date_added)
+             DateTime.parse(date_added)
            end
 
     {name: name, date_added: date}
@@ -53,7 +53,7 @@ class Friend
   end
 
   def count_by_week_year
-    ["week #{@date_added.cweek} of #{@date_added.year}"]
+    ["week #{@date_added.strftime('%V')} of #{@date_added.year}"]
   end
 
 end
