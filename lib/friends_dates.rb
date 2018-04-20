@@ -31,7 +31,7 @@ class FriendsDates
              elsif date_added == 'Yesterday'
                Date.today.prev_day
              else
-               Date.parse(date_added)
+               DateTime.parse(date_added)
              end
 
       friends_dates << date

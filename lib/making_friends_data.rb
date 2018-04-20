@@ -27,7 +27,7 @@ class MakingFriendsData
       by_day[date.strftime('%F')] += 1
       by_month[date.strftime('%B')] += 1
       by_month_and_year[date.strftime('%B - %Y')] += 1
-      by_week_and_year["week #{date.cweek} of #{date.year}"] += 1
+      by_week_and_year["week #{date.strftime('%V')} of #{date.year}"] += 1
 
       if date.friday? || date.saturday? || date.sunday?
         by_weekend[:weekend] += 1

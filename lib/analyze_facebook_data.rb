@@ -56,7 +56,7 @@ class AnalyzeFacebookData
             me[:total_message_count]            += 1
             friends[friend_name][:you_count]    += 1
             friends[friend_name][:total_count]  += 1
-            my_messages_dates << Time.parse(date_info)
+            my_messages_dates << DateTime.parse(date_info)
           else
             # a friend of mine
             friends[friend_name][:total_count] += 1
