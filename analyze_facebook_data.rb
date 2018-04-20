@@ -2,8 +2,9 @@
 
 # My script for 'I analyzed my facebook data and it's story of shyness, loneliness and change'
 
-require 'nokogiri'
-require 'axlsx'
+require 'rubygems'
+require 'bundler/setup'
+Bundler.require(:default)
 
 # parsing the data
 require_relative 'lib/analyze_facebook_data.rb'

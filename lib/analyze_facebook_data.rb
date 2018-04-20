@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class AnalyzeFacebookData
-  attr_accessor :friends, :me, :my_messages_dates, :dictionary, :catalog
+  attr_accessor :friends, :me, :my_messages_dates, :dictionary, :catalog, :user_name
 
   def initialize(data_catalog)
     @friends           = {}
@@ -9,6 +9,7 @@ class AnalyzeFacebookData
     @my_messages_dates = []
     @dictionary        = Hash.new(0)
     @catalog           = data_catalog
+    @user_name         = catalog_user_name
   end
 
   # AnalyzeMessages
@@ -105,7 +106,7 @@ class AnalyzeFacebookData
     Dir.glob("#{catalog}/messages/*.html")
   end
 
-  def user_name
+  def catalog_user_name
     Nokogiri::HTML(File.open("#{catalog}/index.htm")).title
             .split(' - Profile')[0]
   end
