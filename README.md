@@ -1,4 +1,5 @@
 # facebook_data_analyzer
+_my spin of the original project. original code and idea came from [@lackoftactics](https://github.com/Lackoftactics)_
 
 Facebook data analyzer as seen on [I analyzed my facebook data and it's story of shyness, loneliness, and change](https://medium.com/@przemek_/i-analyzed-my-facebook-data-and-its-story-of-shyness-loneliness-and-change-7f4e0ec3a952)
 
