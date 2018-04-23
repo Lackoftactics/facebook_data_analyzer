@@ -34,39 +34,20 @@ class Messages < Analyzeable
   def analyze
     Dir.chdir(@directory) do
       messages_files = Dir.glob(@file_pattern)
+      semaphore = Mutex.new
 
-      messages_files.each do |file|
+      Parallel.each(messages_files, in_threads: @threads_supported, progress: "Doing stuff") do |file|
+        conversation_messages = extract_messages(file: file)
 
-        content = File.open(file)
-
-        doc = Nokogiri::HTML(content)
-        conversation_name = doc.title.split('Conversation with ')[1]
-
-        next if conversation_name.nil?
-
-        puts "Analyzing conversation with: #{conversation_name}"
-        html_messages = extract_messages(document: doc)
-
-        html_messages.each do |conversation_node|
-          # Expects each slice to consist of the div with sender info and the p with content
-          next if conversation_node.count != 2
-          message_details = Message.parse(sender_info: conversation_node[0], content: conversation_node[1])
-          sender = message_details[:sender]
-          
-          next if sender.nil?
-
-          message = Message.new(sender: sender,
-                                conversation: conversation_name,
-                                date_sent: message_details[:date_sent],
-                                content: message_details[:content]
-                                )
-          @messages << message
-          group(analyzeable: message)
-          count(analyzeable: message)
+        conversation_messages.each do |message|
+          semaphore.synchronize do
+            @messages << message
+            group(analyzeable: message)
+            count(analyzeable: message)
+          end
         end
       end
     end
-
   end
 
   def export(package:)
@@ -222,10 +203,17 @@ class Messages < Analyzeable
     end
   end
 
-  def extract_messages(document:)
-    conversation = document.at_css('.thread').children
+  def extract_messages(file:)
+    content = File.open(file)
+    doc = Nokogiri::HTML(content)
+    conversation_name = doc.title.split('Conversation with ')[1]
+
+    return [] if conversation_name.nil?
+
+    conversation = doc.at_css('.thread').children
     conversation_senders = []
     conversation_contents = []
+    messages = []
 
     conversation.each do |node|
       if node.name == 'div' && node['class'] == 'message'
@@ -235,7 +223,23 @@ class Messages < Analyzeable
       end
     end
 
-    conversation_senders.zip(conversation_contents)
-  end
+    conversation_senders.zip(conversation_contents).each do |conversation_node|
+      # Expects each slice to consist of the div with sender info and the p with content
+      next if conversation_node.count != 2
+      message_details = Message.parse(sender_info: conversation_node[0], content: conversation_node[1])
+      sender = message_details[:sender]
 
+      next if sender.nil?
+
+      message = Message.new(sender: sender,
+                            conversation: conversation_name,
+                            date_sent: message_details[:date_sent],
+                            content: message_details[:content]
+      )
+
+      messages << message
+    end
+
+    messages
+  end
 end

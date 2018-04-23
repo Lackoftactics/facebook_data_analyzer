@@ -6,28 +6,6 @@ require 'rubygems'
 require 'bundler/setup'
 Bundler.require(:default)
 
-# parsing the data
-require_relative 'lib/analyze_facebook_data.rb'
-require_relative 'lib/making_friends_data.rb'
-
-# sort the data for using in workbook sheets
-require_relative 'lib/messages_sent.rb'
-require_relative 'lib/friends_dates.rb'
-require_relative 'lib/contact_list.rb'
-
-# creating workbook sheets
-require_relative 'lib/friends_ranking_sheet.rb'
-require_relative 'lib/message_statistics_sheet.rb'
-require_relative 'lib/making_friends_sheet.rb'
-require_relative 'lib/contact_list_sheet.rb'
-require_relative 'lib/vocabulary_statistics_sheet.rb'
-
-# sort of helper
-require_relative 'lib/most_popular_words.rb'
-
-# creates a xlsx file
-require_relative 'lib/workbook.rb'
-
 require_relative 'classes/analyzeables/analyzeable'
 require_relative 'classes/analyzeables/contacts'
 require_relative 'classes/analyzeables/friends'
