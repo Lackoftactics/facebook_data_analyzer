@@ -19,18 +19,20 @@ Even with the bottlenecks, speed (without Parallel) is now equivalent to the ori
 Currently, Parallel makes the analysis take longer. I've left the code to support processing Messages using threads, but have disabled it.
 
 ### Planned additional analyses 
-- Popular words per conversation
-- The top words shared by everyone in the conversation
-- Who you talk to most across every conversation
-- Analysis of who sends the most multimedia messages (pictures, stickers, gifs, etc.)
-- Breakdown of who sends the last message
-- Words often used in the last message of a conversation
-- Timeline of messages (highlighting concurrent conversations)
-- Friendship velocity (date friended to number of messages sent/received)
-- Strongest friendship (consistent communication)
-- Attempt to breakdown messages by gender of recipient 
-- Videos/Pictures with the most comments (+ top words used)
-- Some kind of breakdown of Security information
-- Some kind of analysis of the timeline.html 
+|                                       Idea                                          |     Difficulty (1-5)
+|                                    -----------                                      |          :----:
+| Popular words per conversation                                                      | 1
+| The top words shared by everyone in the conversation                                | 1
+| Who you talk to most across every conversation                                      | 1 
+| Analysis of who sends the most multimedia messages (pictures, stickers, gifs, etc.) | 2
+| Breakdown of who sends the last message                                             | 3
+| Words often used in the last message of a conversation                              | 3
+| Timeline of messages (highlighting concurrent conversations)                        | 4
+| Friendship velocity (date friended to number of messages sent/received)             | 3
+| Strongest friendship (consistent communication)                                     | 2
+| Attempt to breakdown messages by gender of recipient                                | 1
+| Videos/Pictures with the most comments (+ top words used)                           | 2
+| Some kind of breakdown of Security information                                      | 3
+| Some kind of analysis of the timeline.html                                          | 3
 
 ## README from forked project -> [here](https://github.com/Lackoftactics/facebook_data_analyzer)
