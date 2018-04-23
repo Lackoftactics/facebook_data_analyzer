@@ -36,6 +36,7 @@ class Messages < Analyzeable
       messages_files = Dir.glob(@file_pattern)
 
       messages_files.each do |file|
+
         content = File.open(file)
 
         doc = Nokogiri::HTML(content)
@@ -44,11 +45,7 @@ class Messages < Analyzeable
         next if conversation_name.nil?
 
         puts "Analyzing conversation with: #{conversation_name}"
-
-        conversation = doc.css('.thread').children
-        conversation_senders = conversation.css('div.message')
-        conversation_contents = conversation.css('p')
-        html_messages = conversation_senders.zip(conversation_contents)
+        html_messages = extract_messages(document: doc)
 
         html_messages.each do |conversation_node|
           # Expects each slice to consist of the div with sender info and the p with content
@@ -223,6 +220,22 @@ class Messages < Analyzeable
         line.split(' ')[0].downcase
       end.compact
     end
+  end
+
+  def extract_messages(document:)
+    conversation = document.at_css('.thread').children
+    conversation_senders = []
+    conversation_contents = []
+
+    conversation.each do |node|
+      if node.name == 'div' && node['class'] == 'message'
+        conversation_senders << node
+      elsif node.name == 'p'
+        conversation_contents << node
+      end
+    end
+
+    conversation_senders.zip(conversation_contents)
   end
 
 end
