@@ -22,8 +22,7 @@ class Friends < Analyzeable
       friends_list = doc.css('div.contents > ul')[0].css('li')
 
       friends_list.each do |friend_element|
-        friend_info = Friend.parse(friend_element: friend_element)
-        friend = Friend.new(name: friend_info[:name], date_added: friend_info[:date_added])
+        friend = Friend.parse(friend_element: friend_element)
 
         @friends << friend
         count(analyzeable: friend)

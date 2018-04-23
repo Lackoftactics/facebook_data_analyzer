@@ -1,5 +1,5 @@
 class Message
-  def self.parse(sender_info:, content:)
+  def self.parse(sender_info:, content:, conversation:)
     # To avoid searching, making a hash of child.name.child.class
     hashed_children = {}
     message_header = sender_info.children[0]
@@ -11,7 +11,7 @@ class Message
     # Removes everything that's not alphanumeric (except for spaces)
     content = raw_content.gsub(/[^\p{Alpha}\p{Space}-]/u, '')
 
-    {sender: sender, date_sent: date_sent, content: content}
+    Message.new(sender: sender, date_sent: date_sent, content: content, conversation: conversation)
   end
 
   attr_reader :sender, :conversation, :date_sent, :content, :words, :word_count, :character_count, :xd_count
