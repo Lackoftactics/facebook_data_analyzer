@@ -36,7 +36,7 @@ class Messages < Analyzeable
       messages_files = Dir.glob(@file_pattern)
       semaphore = Mutex.new
 
-      Parallel.each(messages_files, in_threads: @threads_supported, progress: "Doing stuff") do |file|
+      Parallel.each(messages_files, in_threads: @threads_supported, progress: "Processing Messages") do |file|
         conversation_messages = extract_messages(file: file)
 
         conversation_messages.each do |message|
@@ -226,16 +226,9 @@ class Messages < Analyzeable
     conversation_senders.zip(conversation_contents).each do |conversation_node|
       # Expects each slice to consist of the div with sender info and the p with content
       next if conversation_node.count != 2
-      message_details = Message.parse(sender_info: conversation_node[0], content: conversation_node[1])
-      sender = message_details[:sender]
+      message = Message.parse(sender_info: conversation_node[0], content: conversation_node[1], conversation: conversation_name)
 
-      next if sender.nil?
-
-      message = Message.new(sender: sender,
-                            conversation: conversation_name,
-                            date_sent: message_details[:date_sent],
-                            content: message_details[:content]
-      )
+      next if message.sender.nil?
 
       messages << message
     end
