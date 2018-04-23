@@ -1,7 +1,12 @@
 class Message
   def self.parse(sender_info:, content:)
-    sender = sender_info.css('span.user').text
-    date_sent = DateTime.parse(sender_info.css('span.meta').text)
+    # To avoid searching, making a hash of child.name.child.class
+    hashed_children = {}
+    message_header = sender_info.children[0]
+    message_header.children.each { |c| hashed_children["#{c.name}.#{c['class']}"] = c }
+
+    sender = hashed_children['span.user'].text
+    date_sent = DateTime.parse(hashed_children['span.meta'].text)
     raw_content = content.text.downcase
     # Removes everything that's not alphanumeric (except for spaces)
     content = raw_content.gsub(/[^\p{Alpha}\p{Space}-]/u, '')
