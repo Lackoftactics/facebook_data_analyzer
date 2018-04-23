@@ -6,7 +6,7 @@ class Analyzeable
   GROUP_BY = [].freeze
   COUNT_BY = [].freeze
 
-  def initialize
+  def initialize(threads_supported: 0)
     # Grouped by is weird and needs a hash for each GROUP_BY, hash for each unique group, and hash for attributes
     @grouped_by = Hash.new do |by_group, key|
       by_group[key] = Hash.new do |group_name, attribute|
@@ -14,6 +14,9 @@ class Analyzeable
       end
     end
     @counted_by = Hash.new { |hash, key| hash[key] = Hash.new(0) }
+
+    # Thread limit for Parallel processing
+    @threads_supported = threads_supported
   end
 
   def analyze
