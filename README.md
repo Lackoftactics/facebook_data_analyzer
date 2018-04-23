@@ -1,24 +1,5 @@
 # facebook_data_analyzer
 
-### TODO (northcott-j) (partial refactor is finished)
-- Run in Parallel
-    - Only leveraging in Messages currently
-- Double check numbers (word counts are off)
-- Merge in test suite when available
-- Add new sheets with more info and insights
-
-### Update on Performance
-Current bottlenecks (in order of % runtime)
-- Analyzeable.count   (22%)
-- Analyzeable.group   (20%)
-- DateTime.parse      (18%)
-- doc.at_css(.thread) (11%)
-
-Even with the bottlenecks, speed (without Parallel) is now equivalent to the original version.
-
-Currently, Parallel makes the analysis take longer. I've left the code to support processing Messages using threads, but have disabled it.
-
-## README from forked project -> [here](https://github.com/Lackoftactics/facebook_data_analyzer)
 Facebook data analyzer as seen on [I analyzed my facebook data and it's story of shyness, loneliness, and change](https://medium.com/@przemek_/i-analyzed-my-facebook-data-and-its-story-of-shyness-loneliness-and-change-7f4e0ec3a952)
 
 Analyze facebook copy of your data. Download zip file from facebook and get info about friends ranking by message, vocabulary,  contacts, friends added statistics and more.
