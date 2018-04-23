@@ -1,11 +1,22 @@
 # facebook_data_analyzer
 
-### TODO (partial refactor is finished)
-- Fix speed (Parallel?)
+### TODO (northcott-j) (partial refactor is finished)
+- Run in Parallel
     - Process each Analyzeable at the same time
     - Process each file at the same time (with Queue)
 - Double check numbers (word counts are off)
-- Check OOD is okay (it feels, ehhh right now.)
+- Merge in test suite when available
+- Add new sheets with more info and insights
+- self.parse should return an Object not a Hash
+
+### Update on Performance
+Current bottlenecks (in order of % runtime)
+- Analyzeable.count   (22%)
+- Analyzeable.group   (20%)
+- DateTime.parse      (18%)
+- doc.at_css(.thread) (11%)
+
+Even with the bottlenecks, speed is now equivalent to the original version. The future version that uses the Parallel library should increase speed to the point where the above slowdowns are negligible.  
 
 Facebook data analyzer as seen on [I analyzed my facebook data and it's story of shyness, loneliness, and change](https://medium.com/@przemek_/i-analyzed-my-facebook-data-and-its-story-of-shyness-loneliness-and-change-7f4e0ec3a952)
 
