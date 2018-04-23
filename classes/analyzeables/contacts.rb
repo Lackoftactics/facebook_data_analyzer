@@ -16,17 +16,15 @@ class Contacts < Analyzeable
 
       contacts_rows = doc.css('div.contents tr')
 
-      unique_contacts = contacts_rows.map do |contact|
+      unique_contacts = contacts_rows.each_with_object({}) do |contact, seen_contacts|
         text = contact.text
 
         next if text == 'NameContacts'
 
-        Contact.parse(contact_text: text)
-      end.compact.uniq
+        seen_contacts[text] = Contact.parse(contact_text: text)
+      end
 
-      unique_contacts.each do |contact|
-        contact = Contact.new(name: contact[:name], details: contact[:details])
-
+      unique_contacts.values.each do |contact|
         @contacts << contact
       end
     end

@@ -16,7 +16,7 @@ class Friend
              DateTime.parse(date_added)
            end
 
-    {name: name, date_added: date}
+    Friend.new(name: name, date_added: date)
   end
 
   def initialize(name:, date_added:)

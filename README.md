@@ -6,7 +6,6 @@
 - Double check numbers (word counts are off)
 - Merge in test suite when available
 - Add new sheets with more info and insights
-- self.parse should return an Object not a Hash
 
 ### Update on Performance
 Current bottlenecks (in order of % runtime)
