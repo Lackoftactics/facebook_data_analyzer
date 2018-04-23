@@ -34,5 +34,6 @@ Currently, Parallel makes the analysis take longer. I've left the code to suppor
 | Videos/Pictures with the most comments (+ top words used)                           | 2
 | Some kind of breakdown of Security information                                      | 3
 | Some kind of analysis of the timeline.html                                          | 3
+| Integrate SMS data with messaging stats                                             | 5
 
 ## README from forked project -> [here](https://github.com/Lackoftactics/facebook_data_analyzer)
