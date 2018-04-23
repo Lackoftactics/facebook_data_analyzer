@@ -4,6 +4,7 @@
 
 require 'nokogiri'
 require 'axlsx'
+require 'parallel'
 
 require_relative 'classes/analyzeables/analyzeable'
 require_relative 'classes/analyzeables/contacts'
