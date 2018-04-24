@@ -18,13 +18,13 @@ class Messages < Analyzeable
   # word: {#word: count ...}
   COUNT_BY = [:date, :month, :year, :day_of_week, :hour, :weekend, :year_hour, :word].freeze
 
-  def initialize(catalog:)
+  def initialize(catalog:, parallel:)
     @catalog = catalog
     @directory = "#{catalog}/messages"
     @file_pattern = '*.html'
     @messages = []
 
-    super()
+    super(parallel: parallel)
   end
 
   def me
@@ -35,7 +35,8 @@ class Messages < Analyzeable
     Dir.chdir(@directory) do
       messages_files = Dir.glob(@file_pattern)
 
-      Parallel.each(messages_files, in_processes: 4, progress: "Parsing Messages") do |file|
+      # This block will be skipped if all message files have already been parsed
+      Parallel.each(messages_files, in_processes: @processes_supported, progress: "Parsing Messages") do |file|
         conversation_messages = extract_messages(file: file).map do |message|
           {sender: message.sender,
            conversation:message.conversation,
@@ -46,11 +47,11 @@ class Messages < Analyzeable
         File.open("_#{file}.json", 'w') do |json|
           json.write(conversation_messages.to_json)
         end
-      end
+      end if Dir.glob('_*.json').count != messages_files.count
 
       semaphore = Mutex.new
       parsed_message_files = Dir.glob('_*.json')
-      Parallel.each(parsed_message_files, in_threads: 10, progress: "Analyzing Messages") do |json_file|
+      Parallel.each(parsed_message_files, in_threads: @threads_supported, progress: "Analyzing Messages") do |json_file|
         json_message_array = JSON.parse(File.read(json_file))
         messages = json_message_array.map do |message|
           Message.build(json_message: message)

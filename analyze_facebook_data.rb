@@ -45,7 +45,7 @@ Workbook.new(catalog: ARGV[0])
 
 catalog = ARGV[0]
 package = Axlsx::Package.new
-analyzeables = [Messages.new(catalog: catalog), Contacts.new(catalog: catalog), Friends.new(catalog: catalog)]
+analyzeables = [Messages.new(catalog: catalog, parallel: true), Contacts.new(catalog: catalog), Friends.new(catalog: catalog)]
 
 analyzeables.each do |analyzeable|
   analyzeable.analyze
