@@ -219,7 +219,8 @@ class Messages < Analyzeable
       if node.name == 'div' && node['class'] == 'message'
         conversation_senders << node
       elsif node.name == 'p'
-        conversation_contents << node
+        # There are empty <p> as padding around images
+        conversation_contents << node unless node.children.count == 0
       end
     end
 

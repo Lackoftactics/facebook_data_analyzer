@@ -7,9 +7,10 @@ class Message
 
     sender = hashed_children['span.user'].text
     date_sent = DateTime.parse(hashed_children['span.meta'].text)
-    raw_content = content.text.downcase
-    # Removes everything that's not alphanumeric (except for spaces)
-    content = raw_content.gsub(/[^\p{Alpha}\p{Space}-]/u, '')
+    # There are some legit messages that are empty <p>'s for some reason
+    raw_content = (content&.text || 'messageremoved').downcase
+    # Removes everything that's not alphanumeric (except for spaces and $)
+    content = raw_content.gsub(/[^\p{AlNum}\p{Space}$]/u, '')
 
     Message.new(sender: sender, date_sent: date_sent, content: content, conversation: conversation)
   end
