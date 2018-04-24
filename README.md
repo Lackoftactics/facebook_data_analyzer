@@ -1,4 +1,5 @@
 # facebook_data_analyzer
+_my spin of the original project. original code and idea came from [@lackoftactics](https://github.com/Lackoftactics)_
 
 ### TODO (northcott-j) (partial refactor is finished)
 - Run in Parallel
