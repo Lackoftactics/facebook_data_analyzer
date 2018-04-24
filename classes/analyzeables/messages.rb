@@ -34,13 +34,30 @@ class Messages < Analyzeable
   def analyze
     Dir.chdir(@directory) do
       messages_files = Dir.glob(@file_pattern)
+
+      Parallel.each(messages_files, in_processes: 4, progress: "Parsing Messages") do |file|
+        conversation_messages = extract_messages(file: file).map do |message|
+          {sender: message.sender,
+           conversation:message.conversation,
+           date_sent: message.date_sent.to_s,
+           content: message.content}
+        end
+
+        File.open("_#{file}.json", 'w') do |json|
+          json.write(conversation_messages.to_json)
+        end
+      end
+
       semaphore = Mutex.new
+      parsed_message_files = Dir.glob('_*.json')
+      Parallel.each(parsed_message_files, in_threads: 10, progress: "Analyzing Messages") do |json_file|
+        json_message_array = JSON.parse(File.read(json_file))
+        messages = json_message_array.map do |message|
+          Message.build(json_message: message)
+        end
 
-      Parallel.each(messages_files, in_threads: @threads_supported, progress: "Processing Messages") do |file|
-        conversation_messages = extract_messages(file: file)
-
-        conversation_messages.each do |message|
-          semaphore.synchronize do
+        semaphore.synchronize do
+          messages.each do |message|
             @messages << message
             group(analyzeable: message)
             count(analyzeable: message)
