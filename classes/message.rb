@@ -15,6 +15,13 @@ class Message
     Message.new(sender: sender, date_sent: date_sent, content: content, conversation: conversation)
   end
 
+  def self.build(json_message:)
+    Message.new(sender: json_message['sender'],
+                date_sent: DateTime.parse(json_message['date_sent']),
+                content: json_message['content'],
+                conversation: json_message['conversation'])
+  end
+
   attr_reader :sender, :conversation, :date_sent, :content, :words, :word_count, :character_count, :xd_count
 
   def initialize(sender:, conversation:, date_sent:, content:)

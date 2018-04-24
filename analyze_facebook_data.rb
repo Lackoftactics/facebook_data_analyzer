@@ -5,6 +5,7 @@
 require 'rubygems'
 require 'bundler/setup'
 Bundler.require(:default)
+require 'nokogiri'
 
 require_relative 'classes/analyzeables/analyzeable'
 require_relative 'classes/analyzeables/contacts'
