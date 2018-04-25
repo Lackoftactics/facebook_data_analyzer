@@ -14,6 +14,10 @@ class AnalyzeFacebookData
 
   # AnalyzeMessages
   def start
+    unless ENV['DEBUG']
+      puts "Analyzing #{messages_files.count} messages..."
+    end
+
     messages_files.each do |file|
       # open current file
       content = File.open(file)
@@ -33,8 +37,9 @@ class AnalyzeFacebookData
         total_count: 0
       }
 
-      # Debug
-      puts "Analyzing conversation with: #{friend_name}"
+      if ENV['DEBUG']
+        puts "Analyzing conversation with: #{friend_name}"
+      end
 
       # whole conversation
       conversation = doc.css('.thread').children
@@ -94,6 +99,10 @@ class AnalyzeFacebookData
           friends[friend_name][:friend_words]       += paragraph_words.length
         end
       end
+    end
+
+    unless ENV['DEBUG']
+      puts "Finished #{messages_files.count} messages..."
     end
     self
   end
