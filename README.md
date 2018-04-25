@@ -2,8 +2,6 @@
 
 Facebook data analyzer as seen on [I analyzed my facebook data and it's story of shyness, loneliness, and change](https://medium.com/@przemek_/i-analyzed-my-facebook-data-and-its-story-of-shyness-loneliness-and-change-7f4e0ec3a952)
 
-**HELP ME OUT!! I am promoting on PRODUCT HUNT. Upvote if you like the project [Product hunt upvote](https://www.producthunt.com/posts/facebook-data-analyzer)**
-
 Analyze facebook copy of your data. Download zip file from facebook and get info about friends ranking by message, vocabulary,  contacts, friends added statistics and more.
 
 # How to run
@@ -31,8 +29,4 @@ Analyze facebook copy of your data. Download zip file from facebook and get info
 * How many messages were sent by period: month, week, year, hour. So you can easily get what type of writer you are: night owl vs. early bird. Find your most busy messaging days
 * How your history of making friends looked like? Breaked down by month, year, weekend vs. working day,
 
-** Enjoy! **
-
-
-
-# Sorry for code quality, it was proof of concept. It will be refactored in the future.
+**Enjoy!**
