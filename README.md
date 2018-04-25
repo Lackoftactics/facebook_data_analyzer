@@ -29,4 +29,8 @@ Analyze facebook copy of your data. Download zip file from facebook and get info
 * How many messages were sent by period: month, week, year, hour. So you can easily get what type of writer you are: night owl vs. early bird. Find your most busy messaging days
 * How your history of making friends looked like? Breaked down by month, year, weekend vs. working day,
 
+# Contributing
+
+Please consider running your changes with `ruby benchmark.rb [PATH_TO_YOUR_FACEBOOK_ARCHIVE]` before making a pull request. Changes that significantly slow this project may be rejected
+
 **Enjoy!**

@@ -1,13 +1,12 @@
-# To set up the test, replace in facebook_data_analyzer/analyze_facebook_data.rb the following line:
-# Workbook.new(catalog: ARGV[0])
-# with:
-# Workbook.new(catalog: '/Users/.../facebook_data_analyzer/example/facebook-monaleigh/')
-# A complete path needs to be specified instead of /.../ .
+# To run the benchmark, call:
+# ruby benchmark.rb [PATH_TO_FACEBOOK_DIRECTORY]
 
-# Run the test in Terminal with the following command:
-# ruby benchmark.rb
+# If PATH_TO_FACEBOOK_DIRECTORY is omitted, the minimal archive at `./example/facebook-monaleigh` will be used instead
 
 require 'benchmark'
+
+WORKBOOK = File.join(File.dirname(__FILE__), 'example/facebook-monaleigh')
+ARGV[0] = ARGV[0] || WORKBOOK
 
 Benchmark.bm do |x|
   x.report { require_relative 'analyze_facebook_data' }
