@@ -47,7 +47,7 @@ class Messages < Analyzeable
         File.open("_#{file}.json", 'w') do |json|
           json.write(conversation_messages.to_json)
         end
-      end if Dir.glob('_*.json').count != messages_files.count
+      end unless ENV['DEBUG'] # || (Dir.glob('_*.json').count != messages_files.count)
 
       semaphore = Mutex.new
       parsed_message_files = Dir.glob('_*.json')
