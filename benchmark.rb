@@ -5,8 +5,7 @@
 
 require 'benchmark'
 
-WORKBOOK = File.join(File.dirname(__FILE__), 'example/facebook-monaleigh')
-ARGV[0] = ARGV[0] || WORKBOOK
+ARGV[0] ||= File.join(File.dirname(__FILE__), 'example/facebook-monaleigh')
 
 Benchmark.bm do |x|
   x.report { require_relative 'analyze_facebook_data' }

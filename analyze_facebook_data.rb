@@ -2,12 +2,8 @@
 
 # My script for 'I analyzed my facebook data and it's story of shyness, loneliness and change'
 
-require 'rubygems'
 require 'bundler/setup'
-require 'parallel'
-require 'json'
-Bundler.require(:default)
-require 'nokogiri'
+Bundler.require
 
 require_relative 'classes/analyzeables/analyzeable'
 require_relative 'classes/analyzeables/contacts'
@@ -39,11 +35,6 @@ require_relative 'classes/message'
 # friends gained by month
 # rank everything
 
-
-BENCHMARK_WORKBOOK = File.join(File.dirname(__FILE__), 'example/facebook-monaleigh')
-ARGV[0] ||= BENCHMARK_WORKBOOK
-
-Workbook.new(catalog: ARGV[0])
 
 catalog = ARGV[0]
 package = Axlsx::Package.new
