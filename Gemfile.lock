@@ -7,11 +7,13 @@ GEM
       nokogiri (~> 1.8, >= 1.8.2)
       rubyzip (~> 1.2, >= 1.2.1)
     htmlentities (4.3.4)
+    json (2.1.0)
     mimemagic (0.3.2)
     mini_portile2 (2.3.0)
     nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
     parallel (1.12.1)
+    ruby-progressbar (1.9.0)
     rubyzip (1.2.1)
 
 PLATFORMS
@@ -19,8 +21,10 @@ PLATFORMS
 
 DEPENDENCIES
   axlsx (= 3.0.0.pre)
+  json
   nokogiri (~> 1.8.2)
   parallel
+  ruby-progressbar
 
 BUNDLED WITH
    1.16.1

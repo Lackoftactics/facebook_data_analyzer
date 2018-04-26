@@ -1,1 +1,2 @@
-facebook_analysis.xlsx
+*.xlsx
+example/facebook-monaleigh/messages/*.json
