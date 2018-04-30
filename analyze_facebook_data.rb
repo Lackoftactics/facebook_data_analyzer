@@ -4,6 +4,8 @@
 
 require 'rubygems'
 require 'bundler/setup'
+require 'parallel'
+require 'json'
 Bundler.require(:default)
 
 # parsing the data
