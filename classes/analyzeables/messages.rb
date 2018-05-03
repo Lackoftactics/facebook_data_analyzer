@@ -75,9 +75,10 @@ class Messages < Analyzeable
     message_statistics_sheet(package: package)
     vocabulary_statistics(package: package)
     popular_conversation_words_sheet(package: package)
+    most_words_in_common_sheet(package: package)
   end
 
-  def conversation_counts_for_sender(conversation:, sender:)
+  def conversation_stats_for_sender(conversation:, sender:)
     counts = Hash.new(0)
     sender_messages = @grouped_by[:conversation][conversation][sender]
 
@@ -103,6 +104,19 @@ class Messages < Analyzeable
     count_by
   end
 
+  def count_by_conversation_sender(conversation:, sender:)
+    count_by = Hash.new { |hash, key| hash[key] = Hash.new(0) }
+    sender_messages = @grouped_by[:conversation][conversation][sender]
+
+    return count_by if sender_messages.nil?
+
+    sender_messages.each do |message|
+      count(analyzeable: message, aggregate_hash: count_by)
+    end
+
+    count_by
+  end
+
   private
 
   def conversation_ranking_sheet(package:)
@@ -114,7 +128,7 @@ class Messages < Analyzeable
       ranking = @grouped_by[:conversation].sort_by { |_name, data| data[:message_count] }.reverse
       rank = 1
       ranking.each do |convo_name, convo_data|
-        my_counts = conversation_counts_for_sender(conversation: convo_name, sender: me)
+        my_counts = conversation_stats_for_sender(conversation: convo_name, sender: me)
 
         sheet.add_row [rank, convo_name, convo_data[:message_count],
                        my_counts[:message_count], convo_data[:message_count] - my_counts[:message_count],
@@ -137,6 +151,49 @@ class Messages < Analyzeable
 
         sheet.add_row [rank, friend_name, convo_data[:message_count]]
         rank += 1
+      end
+    end
+  end
+
+  def most_words_in_common_sheet(package:)
+    package.workbook.add_worksheet(name: 'Words in Common per Convo') do |sheet|
+      sheet.add_row ['Conversation', 'Word', 'Participants in Common', 'Count']
+
+      conversation_ranking = @grouped_by[:conversation].sort_by { |_name, data| data[:message_count] }.reverse
+      conversation_ranking.each do |convo_name, convo_data|
+        sheet.add_row [convo_name]
+        
+        participants = convo_data.map { |key, value| key unless key.to_s.include?('_count') }
+        participant_counts = participants.map { |sender| count_by_conversation_sender(conversation: convo_name, sender: sender)}
+        participants_and_their_counts = participants.zip(participant_counts)
+
+        words_in_common = participants_and_their_counts.each_with_object({}) do |(participant, counts), hash|
+          counts[:word].each do |word, count|
+            if hash.include?(word)
+              hash[word][:participants] << participant
+              hash[word][:count] += count
+            else
+              hash[word] = {participants: [participant], count: count}
+            end
+          end
+
+          hash
+        end
+
+        # Limiting to max of ten words per convo
+        word_count = 0
+        # Sorting by number of participants then the count of the word
+        words_in_common.sort_by { |_word, word_data| [word_data[:participants].count, word_data[:count]] }.reverse.each do |word, word_data|
+          # Have to filter out popular words
+          unless most_popular_english_words.include?(word) || most_popular_polish_words.include?(word)
+            sheet.add_row ['', word, word_data[:participants].join(', '), word_data[:count]]
+            word_count += 1
+          end
+
+          break if word_count >= 10
+        end
+
+        sheet.add_row ['']
       end
     end
   end
