@@ -70,10 +70,11 @@ class Messages < Analyzeable
   end
 
   def export(package:)
-    friends_ranking_sheet(package: package)
+    conversation_ranking_sheet(package: package)
+    most_talkative_sheet(package: package)
     message_statistics_sheet(package: package)
     vocabulary_statistics(package: package)
-    popular_conversation_words(package: package)
+    popular_conversation_words_sheet(package: package)
   end
 
   def conversation_counts_for_sender(conversation:, sender:)
@@ -104,7 +105,7 @@ class Messages < Analyzeable
 
   private
 
-  def friends_ranking_sheet(package:)
+  def conversation_ranking_sheet(package:)
     package.workbook.add_worksheet(name: 'Friends ranking') do |sheet|
       sheet.add_row ['Friends ranking']
       sheet.add_row ['Rank', 'Friend/Conversation name', 'total count', 'your messages count', 'other messages count',
@@ -124,7 +125,23 @@ class Messages < Analyzeable
     end
   end
 
-  def popular_conversation_words(package:)
+  def most_talkative_sheet(package:)
+    package.workbook.add_worksheet(name: 'Most Talkative') do |sheet|
+      sheet.add_row ["Friend's Name", 'Message Count']
+
+      ranking = @grouped_by[:sender].sort_by { |_name, data| data[:message_count] }.reverse
+      rank = 1
+
+      ranking.each do |friend_name, convo_data|
+        next if friend_name == @me
+
+        sheet.add_row [rank, friend_name, convo_data[:message_count]]
+        rank += 1
+      end
+    end
+  end
+
+  def popular_conversation_words_sheet(package:)
     package.workbook.add_worksheet(name: 'Popular Words per Convo') do |sheet|
       sheet.add_row ['Conversation', 'Word', 'Count']
 
@@ -240,7 +257,7 @@ class Messages < Analyzeable
         polish_word = line.split(' ')[0].downcase
         polish_words.add(polish_word) unless polish_word.nil?
       end
-      
+
       polish_words
     end
   end
