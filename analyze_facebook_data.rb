@@ -46,3 +46,5 @@ analyzeables.each do |analyzeable|
 end
 
 package.serialize('facebook_analysis.xlsx')
+b = Workbook::Book.open('facebook_analysis.xlsx')
+b.write_to_html('facebook_analysis.html')
