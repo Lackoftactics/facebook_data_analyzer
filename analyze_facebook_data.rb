@@ -3,6 +3,7 @@
 # My script for 'I analyzed my facebook data and it's story of shyness, loneliness and change'
 
 require 'bundler/setup'
+require 'set'
 Bundler.require
 
 require_relative 'classes/analyzeables/analyzeable'

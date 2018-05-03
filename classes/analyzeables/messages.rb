@@ -4,12 +4,13 @@ class Messages < Analyzeable
   #                                 word_count: count,
   #                                 character_count: count,
   #                                 xd_count: count} ...}
+  # conversation_words {#conversation: {#word: count...} ...}
   # sender: {#name: {messages: [messages],
   #                 message_count: count,
   #                 word_count: count,
   #                 character_count: count,
   #                 xd_count: count} ...}
-  GROUP_BY = [:conversation, :sender].freeze
+  GROUP_BY = [:conversation, :conversation_words, :sender].freeze
 
   # date, month, year, day_of_week, hour: {#unit: count ...}
   # weekend: {weekend: count,
@@ -47,7 +48,7 @@ class Messages < Analyzeable
         File.open("_#{file}.json", 'w') do |json|
           json.write(conversation_messages.to_json)
         end
-      end unless ENV['DEBUG'] # || (Dir.glob('_*.json').count != messages_files.count)
+      end unless ENV['DEBUG'] || (Dir.glob('_*.json').count == messages_files.count)
 
       semaphore = Mutex.new
       parsed_message_files = Dir.glob('_*.json')
@@ -72,6 +73,7 @@ class Messages < Analyzeable
     friends_ranking_sheet(package: package)
     message_statistics_sheet(package: package)
     vocabulary_statistics(package: package)
+    popular_conversation_words(package: package)
   end
 
   def conversation_counts_for_sender(conversation:, sender:)
@@ -118,6 +120,32 @@ class Messages < Analyzeable
                        my_counts[:character_count], convo_data[:character_count] - my_counts[:character_count],
                        my_counts[:word_count], convo_data[:word_count] - my_counts[:word_count]]
         rank += 1
+      end
+    end
+  end
+
+  def popular_conversation_words(package:)
+    package.workbook.add_worksheet(name: 'Popular Words per Convo') do |sheet|
+      sheet.add_row ['Conversation', 'Word', 'Count']
+
+      ranked_conversations = @grouped_by[:conversation].sort_by { |_name, data| data[:message_count] }.reverse.map { |convo_name, convo_data| convo_name }
+      ranked_conversations.each do |conversation|
+        words = @grouped_by[:conversation_words][conversation]
+        sheet.add_row [conversation]
+
+        # Limiting to max of ten words per convo
+        word_count = 0
+        words.sort_by { |_word, count| count }.reverse.each do |word, count|
+          # Have to filter out popular words
+          unless most_popular_english_words.include?(word) || most_popular_polish_words.include?(word)
+            sheet.add_row ['', word, count]
+            word_count += 1
+          end
+
+          break if word_count >= 10
+        end
+
+        sheet.add_row ['']
       end
     end
   end
@@ -207,17 +235,25 @@ class Messages < Analyzeable
 
   def most_popular_polish_words
     @popular_polish_words ||= begin
+      polish_words = Set.new
       File.open('most_popular_polish_words.txt').map do |line|
-        line.split(' ')[0].downcase
-      end.compact
+        polish_word = line.split(' ')[0].downcase
+        polish_words.add(polish_word) unless polish_word.nil?
+      end
+      
+      polish_words
     end
   end
 
   def most_popular_english_words
     @popular_english_words ||= begin
+      english_words = Set.new
       File.open('most_popular_english_words.txt').map do |line|
-        line.split(' ')[0].downcase
-      end.compact
+        english_word = line.split(' ')[0].downcase
+        english_words.add(english_word) unless english_word.nil? 
+      end
+
+      english_words
     end
   end
 
