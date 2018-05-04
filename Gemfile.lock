@@ -1,3 +1,8 @@
+PATH
+  remote: .
+  specs:
+    facebook_data_analyzer (0.1.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -6,6 +11,7 @@ GEM
       mimemagic (~> 0.3)
       nokogiri (~> 1.8, >= 1.8.2)
       rubyzip (~> 1.2, >= 1.2.1)
+    diff-lcs (1.3)
     htmlentities (4.3.4)
     json (2.1.0)
     mimemagic (0.3.2)
@@ -13,7 +19,21 @@ GEM
     nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
     parallel (1.12.1)
+    rake (10.5.0)
     rchardet (1.7.0)
+    rspec (3.7.0)
+      rspec-core (~> 3.7.0)
+      rspec-expectations (~> 3.7.0)
+      rspec-mocks (~> 3.7.0)
+    rspec-core (3.7.1)
+      rspec-support (~> 3.7.0)
+    rspec-expectations (3.7.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.7.0)
+    rspec-mocks (3.7.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.7.0)
+    rspec-support (3.7.1)
     ruby-ole (1.2.12.1)
     ruby-progressbar (1.9.0)
     rubyzip (1.2.1)
@@ -31,9 +51,13 @@ PLATFORMS
 
 DEPENDENCIES
   axlsx (= 3.0.0.pre)
+  bundler (~> 1.16)
+  facebook_data_analyzer!
   json
   nokogiri (~> 1.8.2)
   parallel
+  rake (~> 10.0)
+  rspec (~> 3.0)
   ruby-progressbar
   workbook
 

@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+require 'facebook_data_analyzer'
+
+FacebookDataAnalyzer.run
