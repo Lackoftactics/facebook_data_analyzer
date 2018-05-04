@@ -1,3 +1,4 @@
 *.xlsx
 example/facebook-monaleigh/messages/*.json
 .idea/
+.env

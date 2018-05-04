@@ -67,7 +67,6 @@ class Messages < Analyzeable
           messages.each do |message|
             @messages << message
             group(analyzeable: message)
-            binding.pry
             count(analyzeable: message)
           end
         end
