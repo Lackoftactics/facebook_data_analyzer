@@ -26,7 +26,7 @@ class Message
 
   def initialize(sender:, conversation:, date_sent:, content:)
     @sender = sender.to_sym
-    @conversation = conversation.to_sym
+    @conversation = conversation
     @date_sent = date_sent
     @content = content
     @words = content.split(' ')
