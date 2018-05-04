@@ -60,7 +60,8 @@ class Message
   end
 
   def count_by_date
-    [@date_sent.strftime('%F')]
+    [ @date_sent.strftime('%F') ] # format the date-time following the mask
+    # %F -  something like 2007-11-19
   end
 
   def count_by_month

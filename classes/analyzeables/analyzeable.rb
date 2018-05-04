@@ -52,14 +52,19 @@ class Analyzeable
   end
 
   def count(analyzeable:, aggregate_hash: @counted_by)
+    # aggregate_hash is an empty hash (for Messages at least)
     self.class::COUNT_BY.each do |attribute|
-      counting_method = "count_by_#{attribute}".to_sym
+      # attribute can be :date, :year...
+      # Metaprogramming
+      counting_method = "count_by_#{attribute}".to_sym # dynamically defined method's name to call
 
       if analyzeable.respond_to?(counting_method)
-        countables = analyzeable.send(counting_method)
+        countables = analyzeable.send(counting_method) # dynamically calling this method upon Message
+        # countables is an array
 
-        countables.each do |countable|
+        countables.each do |countable| # iterate over this array
           aggregate_hash[attribute][countable] += 1
+          # aggregate_hash[:year]['2007-11-19'] += 1
         end
       end
     end

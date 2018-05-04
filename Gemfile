@@ -8,3 +8,10 @@ gem 'parallel'
 gem 'ruby-progressbar'
 gem 'json'
 gem 'workbook'
+gem 'pry'
+#gem 'dotenv'
+#
+group :test do
+  gem 'rake', '~> 12.1'
+  gem 'rspec', '~> 3.6'
+end

@@ -1,4 +1,5 @@
 class Messages < Analyzeable
+  attr_reader :messages, :grouped_by, :counted_by
   # conversation: {#conversation: {#sender: [messages],
   #                                 message_count: count,
   #                                 word_count: count,
@@ -33,9 +34,11 @@ class Messages < Analyzeable
   end
 
   def analyze
+    # changes directory to the directory from the settings example/facebook-...
     Dir.chdir(@directory) do
-      messages_files = Dir.glob(@file_pattern)
+      messages_files = Dir.glob(@file_pattern) # grab the files
 
+      # Skip if there are JSON files inside messages dir
       # This block will be skipped if all message files have already been parsed
       Parallel.each(messages_files, in_processes: @processes_supported, progress: "Parsing Messages") do |file|
         conversation_messages = extract_messages(file: file).map do |message|
@@ -51,10 +54,12 @@ class Messages < Analyzeable
       end unless ENV['DEBUG'] || (Dir.glob('_*.json').count == messages_files.count)
 
       semaphore = Mutex.new
-      parsed_message_files = Dir.glob('_*.json')
+      parsed_message_files = Dir.glob('_*.json') # grabbing all the JSON files from messages
       Parallel.each(parsed_message_files, in_threads: @threads_supported, progress: "Analyzing Messages") do |json_file|
-        json_message_array = JSON.parse(File.read(json_file))
+        # get each file
+        json_message_array = JSON.parse(File.read(json_file)) # parse the JSON inside this file
         messages = json_message_array.map do |message|
+          # for each message inside the JSON file
           Message.build(json_message: message)
         end
 
@@ -62,6 +67,7 @@ class Messages < Analyzeable
           messages.each do |message|
             @messages << message
             group(analyzeable: message)
+            binding.pry
             count(analyzeable: message)
           end
         end
