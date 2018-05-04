@@ -3,6 +3,8 @@ require 'parallel'
 require 'json'
 require 'date'
 
+require 'dotenv/load' # this loads an .env file from the root of the project
+
 require_relative '../classes/analyzeables/analyzeable'
 require_relative '../classes/analyzeables/contacts'
 require_relative '../classes/analyzeables/friends'
