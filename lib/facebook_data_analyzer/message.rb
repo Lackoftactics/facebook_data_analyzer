@@ -28,14 +28,14 @@ module FacebookDataAnalyzer
     attr_reader :sender, :conversation, :date_sent, :content, :words, :word_count, :character_count, :xd_count
 
     def initialize(sender:, conversation:, date_sent:, content:)
-      @sender = sender.to_sym
-      @conversation = conversation.to_sym
-      @date_sent = date_sent
-      @content = content
-      @words = content.split(' ')
-      @word_count = @words.length
+      @sender          = sender.to_sym
+      @conversation    = conversation
+      @date_sent       = date_sent
+      @content         = content
+      @words           = content.split(' ')
+      @word_count      = @words.length
       @character_count = content.length
-      @xd_count = content.scan('xd').length
+      @xd_count        = content.scan('xd').length
     end
 
     def content_counts

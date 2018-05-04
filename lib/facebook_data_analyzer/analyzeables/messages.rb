@@ -21,13 +21,14 @@ module FacebookDataAnalyzer
     # word: {#word: count ...}
     COUNT_BY = %i[date month year day_of_week hour weekend year_hour word].freeze
 
-    def initialize(catalog:, parallel:)
+    def initialize(catalog:, options: {})
+      @verbose = options.fetch(:verbose)
       @catalog = catalog
       @directory = "#{catalog}/messages"
       @file_pattern = '*.html'
       @messages = []
 
-      super(parallel: parallel)
+      super(parallel: options.fetch(:parallel))
     end
 
     def me
@@ -39,7 +40,7 @@ module FacebookDataAnalyzer
         messages_files = Dir.glob(@file_pattern)
 
         # This block will be skipped if all message files have already been parsed
-        unless ENV['DEBUG']
+        if @verbose || (Dir.glob('_*.json').count != messages_files.count)
           ::Parallel.each(messages_files, in_processes: @processes_supported, progress: 'Parsing Messages') do |file|
             conversation_messages = extract_messages(file: file).map do |message|
               { sender: message.sender,
@@ -52,11 +53,11 @@ module FacebookDataAnalyzer
               json.write(conversation_messages.to_json)
             end
           end
-        end # || (Dir.glob('_*.json').count != messages_files.count)
+        end
 
         semaphore = Mutex.new
         parsed_message_files = Dir.glob('_*.json')
-        Parallel.each(parsed_message_files, in_threads: @threads_supported, progress: 'Analyzing Messages') do |json_file|
+        ::Parallel.each(parsed_message_files, in_threads: @threads_supported, progress: 'Analyzing Messages') do |json_file|
           json_message_array = JSON.parse(File.read(json_file))
           messages = json_message_array.map do |message|
             Message.build(json_message: message)
