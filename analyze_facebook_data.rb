@@ -3,6 +3,7 @@
 # My script for 'I analyzed my facebook data and it's story of shyness, loneliness and change'
 
 require 'bundler/setup'
+require 'set'
 Bundler.require
 
 require_relative 'classes/analyzeables/analyzeable'
@@ -46,3 +47,5 @@ analyzeables.each do |analyzeable|
 end
 
 package.serialize('facebook_analysis.xlsx')
+b = Workbook::Book.open('facebook_analysis.xlsx')
+b.write_to_html('facebook_analysis.html')
