@@ -40,7 +40,7 @@ module FacebookDataAnalyzer
 
         # This block will be skipped if all message files have already been parsed
         unless ENV['DEBUG']
-          Parallel.each(messages_files, in_processes: @processes_supported, progress: 'Parsing Messages') do |file|
+          ::Parallel.each(messages_files, in_processes: @processes_supported, progress: 'Parsing Messages') do |file|
             conversation_messages = extract_messages(file: file).map do |message|
               { sender: message.sender,
                 conversation: message.conversation,

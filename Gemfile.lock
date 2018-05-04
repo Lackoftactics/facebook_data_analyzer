@@ -2,6 +2,12 @@ PATH
   remote: .
   specs:
     facebook_data_analyzer (0.1.0)
+      axlsx (= 3.0.0.pre)
+      json
+      nokogiri (~> 1.8.2)
+      parallel
+      ruby-progressbar
+      workbook
 
 GEM
   remote: https://rubygems.org/
@@ -50,16 +56,10 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  axlsx (= 3.0.0.pre)
   bundler (~> 1.16)
   facebook_data_analyzer!
-  json
-  nokogiri (~> 1.8.2)
-  parallel
   rake (~> 10.0)
   rspec (~> 3.0)
-  ruby-progressbar
-  workbook
 
 BUNDLED WITH
    1.16.1

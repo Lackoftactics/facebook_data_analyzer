@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
-require 'facebook_data_analyzer'
+
+require 'bundler'
+Bundler.require
 
 FacebookDataAnalyzer.run
