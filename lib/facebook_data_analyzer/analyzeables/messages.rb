@@ -7,19 +7,20 @@ module FacebookDataAnalyzer
     #                                 word_count: count,
     #                                 character_count: count,
     #                                 xd_count: count} ...}
+    # conversation_words {#conversation: {#word: count...} ...}
     # sender: {#name: {messages: [messages],
     #                 message_count: count,
     #                 word_count: count,
     #                 character_count: count,
     #                 xd_count: count} ...}
-    GROUP_BY = %i[conversation sender].freeze
+    GROUP_BY = [:conversation, :conversation_words, :sender].freeze
 
     # date, month, year, day_of_week, hour: {#unit: count ...}
     # weekend: {weekend: count,
     #           weekday: count}
     # year_hour: {#year - #hour: count ...}
     # word: {#word: count ...}
-    COUNT_BY = %i[date month year day_of_week hour weekend year_hour word].freeze
+    COUNT_BY = [:date, :month, :year, :day_of_week, :hour, :weekend, :year_hour, :word].freeze
 
     def initialize(catalog:, options: {})
       @verbose = options.fetch(:verbose)
