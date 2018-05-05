@@ -44,6 +44,12 @@ class Message
     {@conversation => conversation_value}
   end
 
+  def group_by_conversation_words
+    word_counts = Hash.new(0)
+    @words.each { |word| word_counts[word] += 1 }
+    {@conversation => word_counts}
+  end
+
   def group_by_sender
     sender_value = {messages: [self]}.merge(content_counts)
     {@sender => sender_value}
