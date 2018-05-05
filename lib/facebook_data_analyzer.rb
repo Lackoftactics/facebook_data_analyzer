@@ -15,6 +15,7 @@ module FacebookDataAnalyzer
   require 'parallel'
   require 'json'
   require 'workbook'
+  require 'set'
 
   def self.run(options = {})
     catalog        = options.fetch(:catalog)

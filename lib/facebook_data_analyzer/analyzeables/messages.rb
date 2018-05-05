@@ -40,20 +40,18 @@ module FacebookDataAnalyzer
         messages_files = Dir.glob(@file_pattern)
 
         # This block will be skipped if all message files have already been parsed
-        if @verbose || (Dir.glob('_*.json').count != messages_files.count)
-          ::Parallel.each(messages_files, in_processes: @processes_supported, progress: 'Parsing Messages') do |file|
-            conversation_messages = extract_messages(file: file).map do |message|
-              { sender: message.sender,
-                conversation: message.conversation,
-                date_sent: message.date_sent.to_s,
-                content: message.content }
-            end
-
-            File.open("_#{file}.json", 'w') do |json|
-              json.write(conversation_messages.to_json)
-            end
+        ::Parallel.each(messages_files, in_processes: @processes_supported, progress: 'Parsing Messages') do |file|
+          conversation_messages = extract_messages(file: file).map do |message|
+            { sender: message.sender,
+              conversation: message.conversation,
+              date_sent: message.date_sent.to_s,
+              content: message.content }
           end
-        end
+
+          File.open("_#{file}.json", 'w') do |json|
+            json.write(conversation_messages.to_json)
+          end
+        end unless @verbose || (Dir.glob('_*.json').count == messages_files.count)
 
         semaphore = Mutex.new
         parsed_message_files = Dir.glob('_*.json')
@@ -75,12 +73,15 @@ module FacebookDataAnalyzer
     end
 
     def export(package:)
-      friends_ranking_sheet(package: package)
+      conversation_ranking_sheet(package: package)
+      most_talkative_sheet(package: package)
       message_statistics_sheet(package: package)
       vocabulary_statistics(package: package)
+      popular_conversation_words_sheet(package: package)
+      most_words_in_common_sheet(package: package)
     end
 
-    def conversation_counts_for_sender(conversation:, sender:)
+    def conversation_stats_for_sender(conversation:, sender:)
       counts = Hash.new(0)
       sender_messages = @grouped_by[:conversation][conversation][sender]
 
@@ -106,9 +107,22 @@ module FacebookDataAnalyzer
       count_by
     end
 
+    def count_by_conversation_sender(conversation:, sender:)
+      count_by = Hash.new { |hash, key| hash[key] = Hash.new(0) }
+      sender_messages = @grouped_by[:conversation][conversation][sender]
+
+      return count_by if sender_messages.nil?
+
+      sender_messages.each do |message|
+        count(analyzeable: message, aggregate_hash: count_by)
+      end
+
+      count_by
+    end
+
     private
 
-    def friends_ranking_sheet(package:)
+    def conversation_ranking_sheet(package:)
       package.workbook.add_worksheet(name: 'Friends ranking') do |sheet|
         sheet.add_row ['Friends ranking']
         sheet.add_row ['Rank', 'Friend/Conversation name', 'total count', 'your messages count', 'other messages count',
@@ -117,13 +131,98 @@ module FacebookDataAnalyzer
         ranking = @grouped_by[:conversation].sort_by { |_name, data| data[:message_count] }.reverse
         rank = 1
         ranking.each do |convo_name, convo_data|
-          my_counts = conversation_counts_for_sender(conversation: convo_name, sender: me)
+          my_counts = conversation_stats_for_sender(conversation: convo_name, sender: me)
 
           sheet.add_row [rank, convo_name, convo_data[:message_count],
                          my_counts[:message_count], convo_data[:message_count] - my_counts[:message_count],
                          my_counts[:character_count], convo_data[:character_count] - my_counts[:character_count],
                          my_counts[:word_count], convo_data[:word_count] - my_counts[:word_count]]
           rank += 1
+        end
+      end
+    end
+
+    def most_talkative_sheet(package:)
+      package.workbook.add_worksheet(name: 'Most Talkative') do |sheet|
+        sheet.add_row ["Friend's Name", 'Message Count']
+
+        ranking = @grouped_by[:sender].sort_by { |_name, data| data[:message_count] }.reverse
+        rank = 1
+
+        ranking.each do |friend_name, convo_data|
+          next if friend_name == @me
+
+          sheet.add_row [rank, friend_name, convo_data[:message_count]]
+          rank += 1
+        end
+      end
+    end
+
+    def most_words_in_common_sheet(package:)
+      package.workbook.add_worksheet(name: 'Words in Common per Convo') do |sheet|
+        sheet.add_row ['Conversation', 'Word', 'Participants in Common', 'Count']
+
+        conversation_ranking = @grouped_by[:conversation].sort_by { |_name, data| data[:message_count] }.reverse
+        conversation_ranking.each do |convo_name, convo_data|
+          sheet.add_row [convo_name]
+
+          participants = convo_data.map { |key, value| key unless key.to_s.include?('_count') }
+          participant_counts = participants.map { |sender| count_by_conversation_sender(conversation: convo_name, sender: sender)}
+          participants_and_their_counts = participants.zip(participant_counts)
+
+          words_in_common = participants_and_their_counts.each_with_object({}) do |(participant, counts), hash|
+            counts[:word].each do |word, count|
+              if hash.include?(word)
+                hash[word][:participants] << participant
+                hash[word][:count] += count
+              else
+                hash[word] = {participants: [participant], count: count}
+              end
+            end
+
+            hash
+          end
+
+          # Limiting to max of ten words per convo
+          word_count = 0
+          # Sorting by number of participants then the count of the word
+          words_in_common.sort_by { |_word, word_data| [word_data[:participants].count, word_data[:count]] }.reverse.each do |word, word_data|
+            # Have to filter out popular words
+            unless most_popular_english_words.include?(word) || most_popular_polish_words.include?(word)
+              sheet.add_row ['', word, word_data[:participants].join(', '), word_data[:count]]
+              word_count += 1
+            end
+
+            break if word_count >= 10
+          end
+
+          sheet.add_row ['']
+        end
+      end
+    end
+
+    def popular_conversation_words_sheet(package:)
+      package.workbook.add_worksheet(name: 'Popular Words per Convo') do |sheet|
+        sheet.add_row ['Conversation', 'Word', 'Count']
+
+        ranked_conversations = @grouped_by[:conversation].sort_by { |_name, data| data[:message_count] }.reverse.map { |convo_name, convo_data| convo_name }
+        ranked_conversations.each do |conversation|
+          words = @grouped_by[:conversation_words][conversation]
+          sheet.add_row [conversation]
+
+          # Limiting to max of ten words per convo
+          word_count = 0
+          words.sort_by { |_word, count| count }.reverse.each do |word, count|
+            # Have to filter out popular words
+            unless most_popular_english_words.include?(word) || most_popular_polish_words.include?(word)
+              sheet.add_row ['', word, count]
+              word_count += 1
+            end
+
+            break if word_count >= 10
+          end
+
+          sheet.add_row ['']
         end
       end
     end
@@ -213,17 +312,25 @@ module FacebookDataAnalyzer
 
     def most_popular_polish_words
       @popular_polish_words ||= begin
+                                  polish_words = Set.new
                                   File.open('most_popular_polish_words.txt').map do |line|
-                                    line.split(' ')[0].downcase
-                                  end.compact
+                                    polish_word = line.split(' ')[0].downcase
+                                    polish_words.add(polish_word) unless polish_word.nil?
+                                  end
+
+                                  polish_words
                                 end
     end
 
     def most_popular_english_words
       @popular_english_words ||= begin
+                                   english_words = Set.new
                                    File.open('most_popular_english_words.txt').map do |line|
-                                     line.split(' ')[0].downcase
-                                   end.compact
+                                     english_word = line.split(' ')[0].downcase
+                                     english_words.add(english_word) unless english_word.nil?
+                                   end
+
+                                   english_words
                                  end
     end
 

@@ -28,28 +28,34 @@ module FacebookDataAnalyzer
     attr_reader :sender, :conversation, :date_sent, :content, :words, :word_count, :character_count, :xd_count
 
     def initialize(sender:, conversation:, date_sent:, content:)
-      @sender          = sender.to_sym
-      @conversation    = conversation
-      @date_sent       = date_sent
-      @content         = content
-      @words           = content.split(' ')
-      @word_count      = @words.length
+      @sender = sender.to_sym
+      @conversation = conversation
+      @date_sent = date_sent
+      @content = content
+      @words = content.split(' ')
+      @word_count = @words.length
       @character_count = content.length
-      @xd_count        = content.scan('xd').length
+      @xd_count = content.scan('xd').length
     end
 
     def content_counts
-      { message_count: 1, word_count: @word_count, character_count: @character_count, xd_count: @xd_count }
+      {message_count: 1, word_count: @word_count, character_count: @character_count, xd_count: @xd_count}
     end
 
     def group_by_conversation
-      conversation_value = { @sender => [self] }.merge(content_counts)
-      { @conversation => conversation_value }
+      conversation_value = {@sender => [self]}.merge(content_counts)
+      {@conversation => conversation_value}
+    end
+
+    def group_by_conversation_words
+      word_counts = Hash.new(0)
+      @words.each { |word| word_counts[word] += 1 }
+      {@conversation => word_counts}
     end
 
     def group_by_sender
-      sender_value = { messages: [self] }.merge(content_counts)
-      { @sender => sender_value }
+      sender_value = {messages: [self]}.merge(content_counts)
+      {@sender => sender_value}
     end
 
     def count_by_word
