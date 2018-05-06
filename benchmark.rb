@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # To run the benchmark, call:
 # ruby benchmark.rb [PATH_TO_FACEBOOK_DIRECTORY]
 
@@ -8,5 +10,8 @@ require 'benchmark'
 ARGV[0] ||= File.join(File.dirname(__FILE__), 'example/facebook-monaleigh')
 
 Benchmark.bm do |x|
-  x.report { require_relative 'analyze_facebook_data' }
+  x.report do
+    require_relative File.join(File.dirname(__FILE__), 'lib/facebook_data_analyzer')
+    FacebookDataAnalyzer.run
+  end
 end

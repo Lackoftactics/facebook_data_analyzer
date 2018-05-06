@@ -2,9 +2,7 @@
 
 source 'https://rubygems.org'
 
-gem 'axlsx', '3.0.0.pre'
-gem 'nokogiri', '~> 1.8.2'
-gem 'parallel'
-gem 'ruby-progressbar'
-gem 'json'
-gem 'workbook'
+git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
+
+# Specify your gem's dependencies in facebook_data_analyzer.gemspec
+gemspec
