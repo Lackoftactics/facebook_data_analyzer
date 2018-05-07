@@ -2,6 +2,7 @@
 
 module FacebookDataAnalyzer
   class Contacts < Analyzeable
+    attr_reader :contacts
     def initialize(catalog:)
       @catalog = catalog
       @directory = "#{catalog}/html/"
@@ -42,7 +43,7 @@ module FacebookDataAnalyzer
       package.workbook.add_worksheet(name: 'Contact list') do |sheet|
         sheet.add_row ['Contact list']
         sheet.add_row ["Facebook imported #{@contacts.length} of your contacts"]
-        sheet.add_row ['Name', 'Phone number']
+        sheet.add_row ['Name', 'Email']
         @contacts.sort_by(&:name).each do |contact|
           sheet.add_row [contact.name, contact.details]
         end
