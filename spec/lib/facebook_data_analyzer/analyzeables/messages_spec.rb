@@ -1,11 +1,14 @@
 RSpec.describe FacebookDataAnalyzer::Messages do
-  subject {
+  subject do
     described_class.new(catalog: test_catalog, options: {parallel: false} )
-  }
+  end
 
-  describe '#analyze' do # # - that's an instance method
+  before(:each) do
+    subject.analyze
+  end
+
+  describe '#analyze' do
     it 'should return proper @messages' do
-      subject.analyze
       message = subject.messages.first
 
       expect(message.character_count).to eq(304)
@@ -20,13 +23,18 @@ RSpec.describe FacebookDataAnalyzer::Messages do
 
   describe '#count' do
     it "should count grouped messages correctly" do
-      subject.analyze
       counted = subject.counted_by
-      binding.pry
+      expect(counted[:date]["2012-01-29"]).to eq(1)
+      expect(counted[:year][2012]).to eq(1)
     end
   end
 
   describe '#group' do
-
+    it "should group messages correctly" do
+      grouped = subject.grouped_by
+      message = grouped[:conversation]["Allison Walker"][:"Allison Walker"].first
+      expect(message.sender).to eq(:"Allison Walker")
+      expect(message.words).to include('hello')
+    end
   end
 end
