@@ -24,17 +24,25 @@ RSpec.describe FacebookDataAnalyzer::Messages do
   describe '#count' do
     it "should count grouped messages correctly" do
       counted = subject.counted_by
-      expect(counted[:date]["2012-01-29"]).to eq(1)
-      expect(counted[:year][2012]).to eq(1)
+      expect(counted[:date]["2012-01-29"]).to_not eq(8)
+      expect(counted[:year][2012]).to_not eq(25)
+      expect(counted[:date]["2015-01-22"]).to eq(4)
+      expect(counted[:month]["January"]).to eq(30)
+      expect(counted[:year][2018]).to eq(31)
+      expect(counted[:day_of_week]["Wednesday"]).to eq(17)
+      expect(counted[:hour][21]).to eq(10)
+      expect(counted[:weekend][:working]).to eq(42)
+      expect(counted[:year_hour]["2018 - 12"]).to eq(2)
     end
   end
 
   describe '#group' do
-    it "should group messages correctly" do
+    it "should group messages by conversation correctly" do
       grouped = subject.grouped_by
       message = grouped[:conversation]["Allison Walker"][:"Allison Walker"].first
       expect(message.sender).to eq(:"Allison Walker")
-      expect(message.words).to include('hello')
+      expect(message.words).to include('hello', 'dance', 'choreography')
+      expect(message.content).to include('please help me promote')
     end
   end
 end
