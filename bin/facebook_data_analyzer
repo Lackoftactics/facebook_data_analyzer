@@ -1,0 +1,35 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'bundler'
+Bundler.require
+
+require 'micro-optparse'
+
+options = Parser.new do |p|
+  p.banner = 'FacebookDataAnalyzer'
+  p.version = FacebookDataAnalyzer::VERSION
+  p.option :catalog, 'set directory to facebook export',
+           default: 'example/facebook-monaleigh'
+  p.option :filename, 'set the name of the generated files',
+           default: 'facebook_analysis'
+  p.option :parallel, 'use parallel processing if set',
+           default: true
+  p.option :html, 'export html when set',
+           default: true
+  p.option :verbose, 'when set displays additional information',
+           default: false
+  p.option :benchmark, 'only runs the benchmark if set',
+           default: false
+end.process!
+
+if options.fetch(:benchmark)
+  require 'benchmark'
+  Benchmark.bm do |x|
+    x.report do
+      FacebookDataAnalyzer.run options
+    end
+  end
+else
+  FacebookDataAnalyzer.run options
+end

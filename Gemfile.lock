@@ -1,3 +1,15 @@
+PATH
+  remote: .
+  specs:
+    facebook_data_analyzer (0.1.0)
+      axlsx (= 3.0.0.pre)
+      json
+      micro-optparse
+      nokogiri (~> 1.8.2)
+      parallel
+      ruby-progressbar
+      workbook
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -12,17 +24,16 @@ GEM
     htmlentities (4.3.4)
     json (2.1.0)
     method_source (0.9.0)
+    micro-optparse (1.2.1)
     mimemagic (0.3.2)
     mini_portile2 (2.3.0)
-    nokogiri (1.8.2)
-      mini_portile2 (~> 2.3.0)
     nokogiri (1.8.2-x64-mingw32)
       mini_portile2 (~> 2.3.0)
     parallel (1.12.1)
     pry (0.11.3)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
-    rake (12.3.1)
+    rake (10.5.0)
     rchardet (1.7.0)
     rspec (3.7.0)
       rspec-core (~> 3.7.0)
@@ -50,20 +61,14 @@ GEM
       spreadsheet (~> 1.1)
 
 PLATFORMS
-  ruby
   x64-mingw32
 
 DEPENDENCIES
-  axlsx (= 3.0.0.pre)
-  dotenv
-  json
-  nokogiri (~> 1.8.2)
-  parallel
+  dotenv (~> 2.4)
+  facebook_data_analyzer!
   pry
-  rake (~> 12.1)
+  rake (~> 10.0)
   rspec (~> 3.6)
-  ruby-progressbar
-  workbook
 
 BUNDLED WITH
    1.16.1
