@@ -2,6 +2,8 @@
 
 module FacebookDataAnalyzer
   class Friend
+    attr_reader :name
+
     def self.parse(friend_element:)
       friend_with_email = friend_element.text.match(/(.*)\s\((.*)\)\s\((.*)\)/)
 

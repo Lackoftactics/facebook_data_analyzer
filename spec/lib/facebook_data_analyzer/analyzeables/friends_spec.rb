@@ -7,6 +7,13 @@ RSpec.describe FacebookDataAnalyzer::Friends do
     subject.analyze
   end
 
+  describe '#analyze' do
+    it 'should return proper friends details' do
+      friend = subject.friends.first
+      expect(friend.name).to eq('Isaac Perez')
+    end
+  end
+
   describe '#count' do
     it "should count adding friends correctly" do
       counted = subject.counted_by
@@ -16,7 +23,7 @@ RSpec.describe FacebookDataAnalyzer::Friends do
       expect(counted[:weekend][:working]).to eq(51)
       expect(counted[:week_year]["week 14 of 2015"]).to eq(2)
       expect(counted[:month_year]["October - 2016"]).to eq(10)
-      expect(counted[:day]["2016-09-15"]).to eq(3)      
+      expect(counted[:day]["2016-09-15"]).to eq(3)
     end
   end
 end
