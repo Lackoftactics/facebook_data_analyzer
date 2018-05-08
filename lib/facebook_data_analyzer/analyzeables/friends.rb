@@ -2,6 +2,7 @@
 
 module FacebookDataAnalyzer
   class Friends < Analyzeable
+    attr_reader :friends
     # year, day_of_week, day, month: {#unit: count ...}
     # weekend: {weekend: count,
     #           weekday: count}

@@ -2,6 +2,7 @@
 
 module FacebookDataAnalyzer
   class Messages < Analyzeable
+    attr_reader :messages
     # conversation: {#conversation: {#sender: [messages],
     #                                 message_count: count,
     #                                 word_count: count,
@@ -23,7 +24,7 @@ module FacebookDataAnalyzer
     COUNT_BY = [:date, :month, :year, :day_of_week, :hour, :weekend, :year_hour, :word].freeze
 
     def initialize(catalog:, options: {})
-      @verbose = options.fetch(:verbose)
+      @verbose = options.fetch(:verbose) { false }
       @catalog = catalog
       @directory = "#{catalog}/messages"
       @file_pattern = '*.html'
