@@ -90,7 +90,6 @@ To install this gem onto your local machine, run `bundle exec rake install`.
 
 ## Testing
 
-To run rspec tests in local environment, create `.env` file, based on `.env.example`.
-Replace the path inside of `.env.example` with your local path. Run: `bundle install`, `rspec .`.
+Run rspec tests with: `bundle install`, `rspec .`.
 
 **Enjoy!**
