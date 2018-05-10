@@ -9,7 +9,7 @@ RSpec.describe FacebookDataAnalyzer::Messages do
 
   describe '#analyze' do
     it 'should return proper @messages' do
-      message = subject.messages.first
+      message = subject.messages.sort {|m1, m2| m1.date_sent <=> m2.date_sent}.first
 
       expect(message.character_count).to eq(304)
       expect(message.word_count).to eq(53)
