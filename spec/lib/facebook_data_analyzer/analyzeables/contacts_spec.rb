@@ -8,8 +8,9 @@ RSpec.describe FacebookDataAnalyzer::Contacts do
   end
 
   describe '#analyze' do
+    let(:contact) { subject.contacts.first }
+
     it 'should return proper @contacts details for first contact' do
-      contact = subject.contacts.first
       expect(contact.name).to eq("Lou Gregory")
       expect(contact.details).to eq("lgregory@gmail.com")
       expect(contact.name).to_not eq("Cindy Walker")

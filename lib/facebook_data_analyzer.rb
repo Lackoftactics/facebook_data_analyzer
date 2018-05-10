@@ -23,7 +23,7 @@ module FacebookDataAnalyzer
     html           = [options.fetch(:filename), 'html'].join('.')
     parallel_usage = options.fetch(:parallel)
 
-    package = ::Axlsx::Package.new
+    package = Axlsx::Package.new
 
     analyzeables = [Messages.new(catalog: catalog, options: options),
                     Contacts.new(catalog: catalog),
@@ -38,7 +38,7 @@ module FacebookDataAnalyzer
     package.serialize(xlsx)
 
     puts "= Export #{html}"
-    b = ::Workbook::Book.open(xlsx)
+    b = Workbook::Book.open(xlsx)
     b.write_to_html(html)
   end
 end

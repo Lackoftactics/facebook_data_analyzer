@@ -8,9 +8,9 @@ RSpec.describe FacebookDataAnalyzer::Messages do
   end
 
   describe '#analyze' do
-    it 'should return proper @messages' do
-      message = subject.messages.sort {|m1, m2| m1.date_sent <=> m2.date_sent}.first
+    let(:message) { subject.messages.sort {|m1, m2| m1.date_sent <=> m2.date_sent}.first }
 
+    it 'should return proper @messages' do
       expect(message.character_count).to eq(304)
       expect(message.word_count).to eq(53)
       expect(message.sender).to eq(:"Allison Walker")
@@ -22,8 +22,9 @@ RSpec.describe FacebookDataAnalyzer::Messages do
   end
 
   describe '#count' do
+    let(:counted) { subject.counted_by }
+
     it "should count grouped messages correctly" do
-      counted = subject.counted_by
       expect(counted[:date]["2012-01-29"]).to_not eq(8)
       expect(counted[:year][2012]).to_not eq(25)
       expect(counted[:date]["2015-01-22"]).to eq(4)
@@ -37,8 +38,9 @@ RSpec.describe FacebookDataAnalyzer::Messages do
   end
 
   describe '#group' do
+    let(:grouped) { subject.grouped_by }
+
     it "should group messages by conversation correctly" do
-      grouped = subject.grouped_by
       message = grouped[:conversation]["Allison Walker"][:"Allison Walker"].first
       expect(message.sender).to eq(:"Allison Walker")
       expect(message.words).to include('hello', 'dance', 'choreography')
