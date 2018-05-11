@@ -7,7 +7,7 @@ module FacebookDataAnalyzer
         end
         sheet.add_row [''] if view_model[:meta].any?
 
-        view_model[:tables].each do |table|
+        view_model[:tables].each do |id, table|
           table[:meta].each do |row|
             sheet.add_row row
           end

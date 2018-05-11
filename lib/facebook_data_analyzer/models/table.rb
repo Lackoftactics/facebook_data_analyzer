@@ -22,5 +22,9 @@ module FacebookDataAnalyzer
     def to_json
       { table_name: @name.dup, headers: @headers.dup, meta: @meta.dup, rows: @rows.dup }
     end
+
+    def html_idify_name
+      "##{@name.to_s.downcase.gsub(' ', '_')}"
+    end
   end
 end
