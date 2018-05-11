@@ -3,6 +3,9 @@
 # My script for 'I analyzed my facebook data and it's story of shyness,
 # loneliness and change'
 module FacebookDataAnalyzer
+  require 'facebook_data_analyzer/mixins/contacts_views_mixin'
+  require 'facebook_data_analyzer/mixins/friends_views_mixin'
+  require 'facebook_data_analyzer/mixins/messages_views_mixin'
   require 'facebook_data_analyzer/analyzeables/analyzeable'
   require 'facebook_data_analyzer/analyzeables/contacts'
   require 'facebook_data_analyzer/analyzeables/friends'
