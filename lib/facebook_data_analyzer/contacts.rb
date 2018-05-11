@@ -2,7 +2,10 @@
 
 module FacebookDataAnalyzer
   class Contacts < Analyzeable
-    include FacebookDataAnalyzer::ContactsViewsMixin
+    include FacebookDataAnalyzer::ExportViewsMixin
+    attr_reader :contacts
+
+    EXPORTS = [:contact_list].freeze
 
     def initialize(catalog:)
       @catalog = catalog

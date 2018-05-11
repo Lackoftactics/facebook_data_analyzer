@@ -2,7 +2,10 @@
 
 module FacebookDataAnalyzer
   class Friends < Analyzeable
-    include FacebookDataAnalyzer::FriendsViewsMixin
+    include FacebookDataAnalyzer::ExportViewsMixin
+    attr_reader :friends
+
+    EXPORTS = [:making_friends].freeze
 
     # year, day_of_week, day, month: {#unit: count ...}
     # weekend: {weekend: count,

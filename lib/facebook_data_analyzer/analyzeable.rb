@@ -2,12 +2,11 @@
 
 module FacebookDataAnalyzer
   class Analyzeable
-    def self.parse
-      raise 'needs to be implemented by concrete class'
-    end
+    attr_reader :grouped_by, :counted_by
 
     GROUP_BY = [].freeze
     COUNT_BY = [].freeze
+    EXPORTS  = [].freeze
 
     def initialize(threads_supported: nil, processes_supported: nil, parallel: false)
       # Grouped by is weird and needs a hash for each GROUP_BY, hash for each unique group, and hash for attributes
