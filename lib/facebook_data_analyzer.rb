@@ -2,28 +2,28 @@
 
 # My script for 'I analyzed my facebook data and it's story of shyness,
 # loneliness and change'
+require 'axlsx'
+require 'parallel'
+require 'json'
+require 'workbook'
+require 'set'
+
+require 'facebook_data_analyzer/analyzeables/analyzeable'
+require 'facebook_data_analyzer/analyzeables/contacts'
+require 'facebook_data_analyzer/analyzeables/friends'
+require 'facebook_data_analyzer/analyzeables/messages'
+require 'facebook_data_analyzer/contact'
+require 'facebook_data_analyzer/friend'
+require 'facebook_data_analyzer/message'
+
 module FacebookDataAnalyzer
-  require 'facebook_data_analyzer/analyzeables/analyzeable'
-  require 'facebook_data_analyzer/analyzeables/contacts'
-  require 'facebook_data_analyzer/analyzeables/friends'
-  require 'facebook_data_analyzer/analyzeables/messages'
-  require 'facebook_data_analyzer/contact'
-  require 'facebook_data_analyzer/friend'
-  require 'facebook_data_analyzer/message'
-
-  require 'axlsx'
-  require 'parallel'
-  require 'json'
-  require 'workbook'
-  require 'set'
-
   def self.run(options = {})
     catalog        = options.fetch(:catalog)
     xlsx           = [options.fetch(:filename), 'xlsx'].join('.')
     html           = [options.fetch(:filename), 'html'].join('.')
     parallel_usage = options.fetch(:parallel)
 
-    package = ::Axlsx::Package.new
+    package = Axlsx::Package.new
 
     analyzeables = [Messages.new(catalog: catalog, options: options),
                     Contacts.new(catalog: catalog),
@@ -38,7 +38,7 @@ module FacebookDataAnalyzer
     package.serialize(xlsx)
 
     puts "= Export #{html}"
-    b = ::Workbook::Book.open(xlsx)
+    b = Workbook::Book.open(xlsx)
     b.write_to_html(html)
   end
 end

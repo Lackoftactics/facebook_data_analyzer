@@ -1,6 +1,6 @@
 *.xlsx
+facebook_analysis.html
 example/facebook-monaleigh/messages/*.json
-
 # bundle gem
 /.bundle/
 /.yardoc
@@ -10,6 +10,9 @@ example/facebook-monaleigh/messages/*.json
 /pkg/
 /spec/reports/
 /tmp/
+
+.idea/
+.env
 
 # rspec failure tracking
 .rspec_status
