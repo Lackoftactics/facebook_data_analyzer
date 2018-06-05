@@ -25,7 +25,7 @@ module FacebookDataAnalyzer
     COUNT_BY = [:date, :month, :year, :day_of_week, :hour, :weekend, :year_hour, :word].freeze
 
     EXPORTS = [:conversation_ranking, :most_talkative, :message_statistics, :vocabulary_statistics, :popular_conversation_words,
-              :most_words_in_common].freeze
+              :most_words_in_common, :percent_words_in_common, :number_of_corrections, :money_talk].freeze
 
     def initialize(catalog:, options: {})
       @verbose = options.fetch(:verbose)

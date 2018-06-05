@@ -88,6 +88,73 @@ module FacebookDataAnalyzer
       build_view_model(model_name: sheet_name, meta: model_meta, tables: tables)
     end
 
+    def percent_words_in_common_view_model
+      sheet_name = 'Percent of Words in Common'
+      percent_in_common = FacebookDataAnalyzer::Table.new(name: sheet_name)
+      my_words = @messages.count_by_sender(sender: me)[:word].keys
+      percent_in_common.add_meta(['Your Unique Word Count:', my_words.count])
+
+      percent_in_common.add_headers(['Rank', 'Person', "Person's Vocab Count", '# of Words in Common', '% in Common with You', '% in Common with Them'])
+
+      ranking = @messages.grouped_by[:sender].keys.map do |sender|
+        sender_words = @messages.count_by_sender(sender: sender)[:word].keys
+        num_words_in_common = (sender_words & my_words).count
+        { num_words_in_common: num_words_in_common, sender: sender, sender_words: sender_words }
+      end.sort_by {|data| data[:num_words_in_common]}.reverse
+      rank = 1
+
+      ranking.each do |data|
+        next if data[:sender] == me
+
+        percent_you = data[:num_words_in_common].to_f / my_words.count.to_f
+        percent_them = data[:num_words_in_common].to_f / data[:sender_words].count.to_f
+        percent_in_common.add_row([rank, data[:sender], data[:sender_words].count, data[:num_words_in_common], percent_you, percent_them])
+        rank += 1
+      end
+
+      build_view_model(model_name: sheet_name, tables: [percent_in_common])
+    end
+
+    def number_of_corrections_view_model
+      sheet_name = 'Number of Corrections'
+      number_of_corrections = FacebookDataAnalyzer::Table.new(name: sheet_name)
+
+      number_of_corrections.add_headers(['Rank', 'Person', "Person's Message Count", '# of Messages With *'])
+
+      ranking = @messages.grouped_by[:sender].map do |sender, data|
+        messages_with_star = data[:messages].map { |message| message if message.content.include? '*' }.compact
+        { num_messages_with_star: messages_with_star.count, sender: sender, total_messages: data[:message_count] }
+      end.sort_by {|data| data[:num_messages_with_star]}.reverse
+      rank = 1
+
+      ranking.each do |data|
+        number_of_corrections.add_row([rank, data[:sender], data[:total_messages], data[:num_messages_with_star]])
+        rank += 1
+      end
+
+      build_view_model(model_name: sheet_name, tables: [number_of_corrections])
+    end
+
+    def money_talk_view_model
+      sheet_name = 'Money Talk'
+      money_talk = FacebookDataAnalyzer::Table.new(name: sheet_name)
+
+      money_talk.add_headers(['Rank', 'Person', "Person's Message Count", '# of Messages With $'])
+
+      ranking = @messages.grouped_by[:sender].map do |sender, data|
+        messages_with_money = data[:messages].map { |message| message if message.content.include? '$' }.compact
+        { num_messages_with_money: messages_with_money.count, sender: sender, total_messages: data[:message_count] }
+      end.sort_by {|data| data[:num_messages_with_money]}.reverse
+      rank = 1
+
+      ranking.each do |data|
+        money_talk.add_row([rank, data[:sender], data[:total_messages], data[:num_messages_with_money]])
+        rank += 1
+      end
+
+      build_view_model(model_name: sheet_name, tables: [money_talk])
+    end
+
     def popular_conversation_words_view_model
       sheet_name = 'Popular Words per Convo'
       model_meta = [['Conversation', 'Word', 'Count']]
