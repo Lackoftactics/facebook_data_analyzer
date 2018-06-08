@@ -157,6 +157,14 @@ module FacebookDataAnalyzer
 
       conversation.each do |node|
         if node.name == 'div' && node['class'] == 'message'
+          # Drops last sender if a valid message can't be found
+          # Figured it was worse to incorrectly attribute a message than
+          # miss one or two. This case has to do with how images, stickers,
+          # reactions, and links get parsed - it isn't always a consistent structure
+          if (conversation_senders.count - conversation_contents.count) > 0
+            conversation_senders.pop
+          end
+
           conversation_senders << node
         elsif node.name == 'p'
           # There are empty <p> as padding around images

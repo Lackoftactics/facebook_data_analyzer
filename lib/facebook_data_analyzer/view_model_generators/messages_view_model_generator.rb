@@ -27,7 +27,7 @@ module FacebookDataAnalyzer
       sheet_name = 'Most Talkative'
       most_talkative = FacebookDataAnalyzer::Table.new(name: 'Most Talkative')
 
-      most_talkative.add_headers(['Rank', "Friend's Name", 'Message Count'])
+      most_talkative.add_headers(['Rank', "Friend's Name", 'Message Count', 'Word Count', 'Character Count'])
 
       ranking = @messages.grouped_by[:sender].sort_by {|_name, data| data[:message_count]}.reverse
       rank = 1
@@ -35,7 +35,7 @@ module FacebookDataAnalyzer
       ranking.each do |friend_name, convo_data|
         next if friend_name == me
 
-        most_talkative.add_row([rank, friend_name, convo_data[:message_count]])
+        most_talkative.add_row([rank, friend_name, convo_data[:message_count], convo_data[:word_count], convo_data[:character_count]])
         rank += 1
       end
 
@@ -113,6 +113,43 @@ module FacebookDataAnalyzer
       end
 
       build_view_model(model_name: sheet_name, tables: [percent_in_common])
+    end
+
+    # Currently disabled because it takes awhile, but the resulting data is pretty interesting
+    def decline_of_unique_words_view_model
+      sheet_name = 'Decline of Unique Words'
+      decline_of_unique = FacebookDataAnalyzer::Table.new(name: sheet_name)
+      sender_headers = []
+      # Will be date sent to Hash of sender names and their percents
+      rows = Hash.new { |hash, key| hash[key] = Hash.new('') }
+
+      senders = @messages.grouped_by[:sender].sort_by {|_name, data| data[:message_count]}.reverse[0...10]
+      # Number of messages to be grouped together to get a data point
+      bucket_size = 5
+
+      senders.each do |sender_name, data|
+        sender_headers << sender_name
+        unique_words = Set.new
+        total_words = 0
+
+        data[:messages].sort_by(&:date_sent).each_slice(bucket_size).to_a.each do |message_slice|
+          date_sent = message_slice[0].date_sent.strftime('%Y-%m-%d::%H:%M')
+          message_slice.each do |message|
+            total_words += message.word_count
+            unique_words.merge(message.words)
+          end
+          percent_unique = unique_words.count.to_f / total_words.to_f
+          rows[date_sent][sender_name] = percent_unique
+        end
+      end
+
+      rows.sort_by {|_date, data| _date}.each do |date, sender_data|
+        row = sender_headers.map { |sender_name| sender_data[sender_name] }
+        decline_of_unique.add_row([date] + row)
+      end
+
+      decline_of_unique.add_headers(['Date Sent'] + sender_headers)
+      build_view_model(model_name: sheet_name, tables: [decline_of_unique])
     end
 
     def number_of_corrections_view_model
