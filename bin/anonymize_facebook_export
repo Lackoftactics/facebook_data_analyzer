@@ -1,0 +1,128 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'nokogiri'
+require 'fileutils'
+require 'micro-optparse'
+
+module AnonymizedFacebookExport
+  # Creates a collection of html/htm files
+  # from the given directory path
+  class FileCollection
+    def initialize(path)
+      @directory = File.join(path)
+    end
+
+    def process
+      all_files_from_directory
+    end
+
+    private
+
+    def all_files_from_directory
+      root_html_files + root_htm_files +
+        directory_html_files + directory_htm_files
+    end
+
+    def directory_html_files
+      Dir.glob(File.join(@directory, '*', '*.html'))
+    end
+
+    def directory_htm_files
+      Dir.glob(File.join(@directory, '*', '*.htm'))
+    end
+
+    def root_html_files
+      Dir.glob(File.join(@directory, '*.html'))
+    end
+
+    def root_htm_files
+      Dir.glob(File.join(@directory, '*.htm'))
+    end
+  end
+
+  # Will load the given file with nokogiri
+  # Replaces the content of the file with asterix
+  class AnonFile
+    def initialize(file)
+      @doc = Nokogiri::HTML(File.open(file))
+    end
+
+    def process
+      remove_content_from_file
+      export_to_html
+    end
+
+    private
+
+    def export_to_html
+      @doc.to_html
+    end
+
+    # Searches the doc for nokogiri text objects,
+    # replaces all non-whitespace characters
+    def remove_content_from_file
+      @doc.search('//text()').each do |node|
+        next if node.path.include?('style') # keep css style
+        node.content = node.text.gsub!(/\S/, '*')
+      end
+    end
+  end
+
+  # Anonymizes the input directory and writes the files to
+  # the output directory
+  class CreateAnonExport
+    attr_reader :anon_files
+
+    def initialize(input_path, output_path)
+      @facebook_export_path = input_path
+      @facebook_export_files = FileCollection.new(@facebook_export_path).process
+      @anon_export_path = output_path
+    end
+
+    def process
+      anon_all_files
+      write_files_to_export_directory
+    end
+
+    private
+
+    def write_files_to_export_directory
+      @anon_files.each do |export_anon_file|
+        export_file_path = export_anon_file[:original_path].gsub!(@facebook_export_path, @anon_export_path)
+        export_directory = File.dirname(export_file_path)
+
+        unless File.directory?(export_directory)
+          FileUtils.mkdir_p(export_directory)
+        end
+
+        File.open(export_file_path, 'w') do |file|
+          file.write(export_anon_file[:html])
+        end
+
+        puts "Wrote anonymized: #{export_file_path}"
+      end
+    end
+
+    def anon_all_files
+      @anon_files = @facebook_export_files.map do |export_file|
+        puts "Anon file #{export_file}"
+        { original_path: export_file, html: AnonFile.new(export_file).process }
+      end
+    end
+  end
+end
+
+options = Parser.new do |p|
+  p.banner = ['[Usage]:', 'anonymized_facebook_export',
+              '--catalog <facebook_export_directory>',
+              '--export <anonymized_export_directory',
+              'This will anonymize the facebook',
+              'export by removing text content'].join(' ')
+  p.option :catalog, 'set directory to facebook export',
+           default: 'example/facebook-monaleigh'
+  p.option :export, 'set the name of export folder',
+           default: 'example/facebook-monaleigh-anonymized'
+end.process!
+
+AnonymizedFacebookExport::CreateAnonExport.new(options.fetch(:catalog), options.fetch(:export)).process

@@ -4,6 +4,10 @@ module FacebookDataAnalyzer
   class Analyzeable
     attr_reader :grouped_by, :counted_by
 
+    def self.parse
+      raise 'needs to be implemented by concrete class'
+    end
+
     GROUP_BY = [].freeze
     COUNT_BY = [].freeze
     EXPORTS  = [].freeze
