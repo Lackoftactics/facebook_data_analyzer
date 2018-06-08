@@ -3,6 +3,7 @@
 module FacebookDataAnalyzer
   class Messages < Analyzeable
     include FacebookDataAnalyzer::ExportViewsMixin
+    attr_reader :messages
 
     # conversation: {#conversation: {#sender: [messages],
     #                                 message_count: count,
@@ -28,7 +29,7 @@ module FacebookDataAnalyzer
               :most_words_in_common, :percent_words_in_common, :number_of_corrections, :money_talk].freeze
 
     def initialize(catalog:, options: {})
-      @verbose = options.fetch(:verbose)
+      @verbose = options.fetch(:verbose, false)
       @catalog = catalog
       @directory = "#{catalog}/messages"
       @file_pattern = '*.html'
