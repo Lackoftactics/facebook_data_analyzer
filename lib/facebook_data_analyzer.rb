@@ -20,9 +20,12 @@ module FacebookDataAnalyzer
   def self.run(options = {})
     file_output    = 'facebook_data_analyzer'
     catalog        = options.fetch(:catalog)
-    xlsx           = [options.fetch(:filename) {file_output}, 'xlsx'].join('.')
-    html           = [options.fetch(:filename) {file_output}, 'html'].join('.')
-    parallel_usage = options.fetch(:parallel) { false }
+    # xlsx           = [options.fetch(:filename) {file_output}, 'xlsx'].join('.')
+    xlsx           = [options.fetch(:filename, file_output), 'xlsx'].join('.')
+    # html           = [options.fetch(:filename) {file_output}, 'html'].join('.')
+    html           = [options.fetch(:filename, file_output), 'html'].join('.')
+    # parallel_usage = options.fetch(:parallel) { false }
+    parallel_usage = options.fetch(:parallel, false)
 
     package = Axlsx::Package.new
 
