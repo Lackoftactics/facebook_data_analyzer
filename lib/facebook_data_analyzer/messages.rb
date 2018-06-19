@@ -35,7 +35,7 @@ module FacebookDataAnalyzer
       @file_pattern = '*.html'
       @messages = []
 
-      super(parallel: options.fetch(:parallel))
+      super(parallel: options.fetch(:parallel, false))
     end
 
     def me
