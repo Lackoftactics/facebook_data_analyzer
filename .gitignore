@@ -1,5 +1,5 @@
 *.xlsx
-facebook_analysis.html
+facebook_data_analyzer.html
 example/facebook-monaleigh/messages/*.json
 # bundle gem
 /.bundle/

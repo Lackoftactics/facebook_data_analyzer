@@ -30,12 +30,12 @@ RSpec.describe FacebookDataAnalyzer::Friends do
 
     it "should count adding friends correctly" do
       expect(counted[:year][2017]).to eq(7)
-      expect(counted[:day_of_week]["Sunday"]).to eq(23)
-      expect(counted[:month]["August"]).to eq(15)
+      expect(counted[:day_of_week]['Sunday']).to eq(23)
+      expect(counted[:month]['August']).to eq(15)
       expect(counted[:weekend][:working]).to eq(51)
-      expect(counted[:week_year]["week 14 of 2015"]).to eq(2)
-      expect(counted[:month_year]["October - 2016"]).to eq(10)
-      expect(counted[:day]["2016-09-15"]).to eq(3)
+      expect(counted[:week_year]['week 14 of 2015']).to eq(2)
+      expect(counted[:month_year]['October - 2016']).to eq(10)
+      expect(counted[:day]['2016-09-15']).to eq(3)
     end
   end
 end
