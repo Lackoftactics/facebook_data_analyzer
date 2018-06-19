@@ -10,6 +10,7 @@ module FacebookDataAnalyzer
 
     GROUP_BY = [].freeze
     COUNT_BY = [].freeze
+    EXPORTS  = [].freeze
 
     def initialize(threads_supported: nil, processes_supported: nil, parallel: false)
       # Grouped by is weird and needs a hash for each GROUP_BY, hash for each unique group, and hash for attributes
