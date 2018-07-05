@@ -13,7 +13,7 @@ module FacebookDataAnalyzer
       # There are some legit messages that are empty <p>'s for some reason
       raw_content = (content&.text || 'messageremoved').downcase
       # Removes everything that's not alphanumeric (except for spaces and $)
-      content = raw_content.gsub(/[^\p{AlNum}\p{Space}$*]/u, '')
+      content = raw_content.gsub(/[^\p{AlNum}\p{Space}$]/u, '')
 
       Message.new(sender: sender, date_sent: date_sent, content: content, conversation: conversation)
     end
