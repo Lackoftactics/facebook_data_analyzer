@@ -5,8 +5,8 @@ module FacebookDataAnalyzer
     attr_reader :contacts
     def initialize(catalog:)
       @catalog = catalog
-      @directory = "#{catalog}/html/"
-      @file_pattern = 'contact_info.htm'
+      @directory = "#{catalog}/about_you/"
+      @file_pattern = 'your_address_books.html'
       @contacts = []
 
       super()
@@ -17,14 +17,10 @@ module FacebookDataAnalyzer
         content = File.open(@file_pattern).read
         doc = Nokogiri::HTML(content)
 
-        contacts_rows = doc.css('div.contents tr')
+        contacts_rows = doc.at_css('._4t5n').children
 
         unique_contacts = contacts_rows.each_with_object({}) do |contact, seen_contacts|
-          text = contact.text
-
-          next if text == 'NameContacts'
-
-          seen_contacts[text] = Contact.parse(contact_text: text)
+          seen_contacts[contact.children[0].text] = Contact.parse(contact_text: contact)
         end
 
         unique_contacts.values.each do |contact|

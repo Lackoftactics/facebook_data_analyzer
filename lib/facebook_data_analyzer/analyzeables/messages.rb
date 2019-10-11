@@ -26,8 +26,8 @@ module FacebookDataAnalyzer
     def initialize(catalog:, options: {})
       @verbose = options.fetch(:verbose) { false }
       @catalog = catalog
-      @directory = "#{catalog}/messages"
-      @file_pattern = '*.html'
+      @directory = "#{catalog}/messages/inbox"
+      @file_pattern = '**/*.html'
       @messages = []
 
       # super(parallel: options.fetch(:parallel) { false })
@@ -35,12 +35,14 @@ module FacebookDataAnalyzer
     end
 
     def me
-      @me ||= Nokogiri::HTML(File.open("#{@catalog}/index.htm")).title.split(' - Profile')[0].to_sym
+      @me ||= Nokogiri::HTML(File.open("#{@catalog}/profile_information/profile_information.html")).css('table._4nkx td')[0].text.to_sym
     end
 
     def analyze
       Dir.chdir(@directory) do
-        messages_files = Dir.glob(@file_pattern)
+        messages_files = Dir.glob(@file_pattern).map{|f| File.realpath(f)}
+
+        puts me
 
         # This block will be skipped if all message files have already been parsed
         ::Parallel.each(messages_files, in_processes: @processes_supported, progress: 'Parsing Messages') do |file|
@@ -51,13 +53,13 @@ module FacebookDataAnalyzer
               content: message.content }
           end
 
-          File.open("_#{file}.json", 'w') do |json|
+          File.open("#{file}.json", 'w') do |json|
             json.write(conversation_messages.to_json)
           end
-        end unless @verbose || (Dir.glob('_*.json').count == messages_files.count)
+        end unless @verbose || (Dir.glob('**/*.json').count == messages_files.count)
 
         semaphore = Mutex.new
-        parsed_message_files = Dir.glob('_*.json')
+        parsed_message_files = Dir.glob('**/*.json')
         ::Parallel.each(parsed_message_files, in_threads: @threads_supported, progress: 'Analyzing Messages') do |json_file|
           json_message_array = JSON.parse(File.read(json_file))
           messages = json_message_array.map do |message|
@@ -340,21 +342,24 @@ module FacebookDataAnalyzer
     def extract_messages(file:)
       content = File.open(file)
       doc = Nokogiri::HTML(content)
-      conversation_name = doc.title.split('Conversation with ')[1]
+      conversation_name = doc.title
+
+      #puts conversation_name
 
       return [] if conversation_name.nil?
 
-      conversation = doc.at_css('.thread').children
+      conversation = doc.at_css('._4t5n').children
       conversation_senders = []
       conversation_contents = []
       messages = []
 
       conversation.each do |node|
-        if node.name == 'div' && node['class'] == 'message'
-          conversation_senders << node
-        elsif node.name == 'p'
-          # There are empty <p> as padding around images
-          conversation_contents << node unless node.children.count == 0
+        if node.name == 'div' && node['class'] == 'pam _3-95 _2pi0 _2lej uiBoxWhite noborder' && node.children.count >= 3
+          conversation_senders << [node.children[0], node.children[2]]
+          conversation_contents << node.children[1]
+        #elsif node.name == 'p'
+        #  # There are empty <p> as padding around images
+        #  conversation_contents << node unless node.children.count == 0
         end
       end
 

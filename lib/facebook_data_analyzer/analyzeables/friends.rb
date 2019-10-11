@@ -12,8 +12,8 @@ module FacebookDataAnalyzer
 
     def initialize(catalog:)
       @catalog = catalog
-      @directory = "#{catalog}/html/"
-      @file_pattern = 'friends.htm'
+      @directory = "#{catalog}/friends/"
+      @file_pattern = 'friends.html'
       @friends = []
 
       super()
@@ -23,7 +23,7 @@ module FacebookDataAnalyzer
       Dir.chdir(@directory) do
         content = File.open(@file_pattern).read
         doc = Nokogiri::HTML(content)
-        friends_list = doc.css('div.contents > ul')[0].css('li')
+        friends_list = doc.at_css('._4t5n').children
 
         friends_list.each do |friend_element|
           friend = Friend.parse(friend_element: friend_element)

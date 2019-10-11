@@ -3,13 +3,8 @@
 module FacebookDataAnalyzer
   class Message
     def self.parse(sender_info:, content:, conversation:)
-      # To avoid searching, making a hash of child.name.child.class
-      hashed_children = {}
-      message_header = sender_info.children[0]
-      message_header.children.each { |c| hashed_children["#{c.name}.#{c['class']}"] = c }
-
-      sender = hashed_children['span.user'].text
-      date_sent = DateTime.parse(hashed_children['span.meta'].text)
+      sender = sender_info[0].text
+      date_sent = DateTime.parse(sender_info[1].text)
       # There are some legit messages that are empty <p>'s for some reason
       raw_content = (content&.text || 'messageremoved').downcase
       # Removes everything that's not alphanumeric (except for spaces and $)
