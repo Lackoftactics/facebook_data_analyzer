@@ -5,13 +5,8 @@ module FacebookDataAnalyzer
     attr_reader :name, :date_added
 
     def self.parse(friend_element:)
-      friend_with_email = friend_element.text.match(/(.*)\s\((.*)\)\s\((.*)\)/)
-
-      if friend_with_email
-        name, date_added = friend_with_email.captures
-      else
-        name, date_added = friend_element.text.match(/(.*)\s\((.*)\)/).captures
-      end
+      name = friend_element.children[0].text
+      date_added = friend_element.children.last.text
 
       date = if date_added == 'Today'
                Date.today

@@ -3,9 +3,10 @@
 module FacebookDataAnalyzer
   class Contact
     def self.parse(contact_text:)
-      contact_info = contact_text.split('contact: ')
+      name_text = contact_text.children[0].text
+      details = contact_text.children.drop(1)
 
-      Contact.new(name: String(contact_info[0]), details: contact_info[1..3].join(' '))
+      Contact.new(name: String(name_text), details: details.join(' '))
     end
 
     attr_reader :name, :details
