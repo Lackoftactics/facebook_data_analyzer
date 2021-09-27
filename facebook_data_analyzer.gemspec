@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'axlsx', '3.0.0.pre' # excel export
   spec.add_dependency 'json' # used for caching
   spec.add_dependency 'micro-optparse' # cli argument parser
-  spec.add_dependency 'nokogiri', '~> 1.8.2' # parser
+  spec.add_dependency 'nokogiri', '>= 1.8.2', '< 1.13.0' # parser
   spec.add_dependency 'parallel' # processing
   spec.add_dependency 'ruby-progressbar'
   spec.add_dependency 'workbook'
